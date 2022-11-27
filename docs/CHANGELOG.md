@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Faustvii/zlib-torznab/compare/v1.0.1...v1.1.0) (2022-11-27)
+
+
+### Features
+
+* added ability to bind monotorrent to specific interface ([e79a0b9](https://github.com/Faustvii/zlib-torznab/commit/e79a0b9b9e1055de96f8c35e318b9d808fadc281))
+
 ## [1.0.1](https://github.com/Faustvii/zlib-torznab/compare/v1.0.0...v1.0.1) (2022-11-27)
 
 
