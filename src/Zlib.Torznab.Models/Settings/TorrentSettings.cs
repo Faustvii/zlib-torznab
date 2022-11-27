@@ -6,4 +6,5 @@ public class TorrentSettings
 
     public string TrackerUrl { get; set; } = string.Empty;
     public string DownloadDirectory { get; set; } = string.Empty;
+    public string NetworkInterface { get; set; } = string.Empty;
 }
