@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/Faustvii/zlib-torznab/compare/v1.0.0...v1.0.1) (2022-11-27)
+
+
+### Bug Fixes
+
+* performance issue because ordering on non indexed column. ([4467a0a](https://github.com/Faustvii/zlib-torznab/commit/4467a0aad2fdf7350dbfb1cecc1caae5582a814d))
+
 # 1.0.0 (2022-11-27)
 
 
