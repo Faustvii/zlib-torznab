@@ -1,5 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Zlib.Torznab.Models.Settings;
 using Zlib.Torznab.Presentation.API.Services;
 
 namespace Zlib.Torznab.Presentation.API.Controllers;
@@ -9,10 +11,12 @@ namespace Zlib.Torznab.Presentation.API.Controllers;
 public class TrackerController : ControllerBase
 {
     private readonly APITrackerListener _trackerListener;
+    private readonly TorrentSettings _torrentSettings;
 
-    public TrackerController(APITrackerListener trackerListener)
+    public TrackerController(APITrackerListener trackerListener, IOptions<TorrentSettings> options)
     {
         _trackerListener = trackerListener;
+        _torrentSettings = options.Value;
     }
 
     [HttpGet]
@@ -37,6 +41,7 @@ public class TrackerController : ControllerBase
         var ip = ExtractProxyAwareIp();
         if (ip is null || Request.QueryString.Value is null)
             return BadRequest();
+        ip = TranslateIP(ip);
 
         var response = _trackerListener.Handle(Request.QueryString.Value, ip, isScrape: false);
         // var responseString = Encoding.UTF8.GetString(response.Encode());
@@ -53,7 +58,7 @@ public class TrackerController : ControllerBase
         var ip = ExtractProxyAwareIp();
         if (ip is null || Request.QueryString.Value is null)
             return BadRequest();
-
+        ip = TranslateIP(ip);
         var response = _trackerListener.Handle(Request.QueryString.Value, ip, isScrape: true);
 
         //GET:/scrape/?info_hash=%de~%8c%a6ov%5d%88%88g%bc%fc%05J%ec%de7%e5%fc%07&info_hash=%ed%ff%12%c4J%5EM%9e%1c%3a%fd%2f!%0c%89%aci%CA%BE%f4
@@ -67,5 +72,20 @@ public class TrackerController : ControllerBase
         if (forwardedForIp is not null)
             ip = IPAddress.Parse(forwardedForIp);
         return ip?.MapToIPv4();
+    }
+
+    private IPAddress TranslateIP(IPAddress address)
+    {
+        var ip = address.ToString();
+        if (_torrentSettings.TranslateIps.TryGetValue(ip, out var translated))
+        {
+            if (!IPAddress.TryParse(translated, out var realIp))
+            {
+                realIp = Dns.GetHostAddresses(translated)[0];
+            }
+            // var realIp = IPAddress.Parse(translated);
+            return realIp;
+        }
+        return address;
     }
 }

@@ -10,6 +10,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
+    <PackageReference Include="monotorrent" Version="3.0.0-beta.rev0068" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -1,6 +1,7 @@
 using MonoTorrent.Client;
 using MonoTorrent.TrackerServer;
 using Zlib.Torznab.Presentation.API.Services;
+using Zlib.Torznab.Services.Torrents;
 
 namespace Zlib.Torznab.Presentation.API.HostedServices;
 
@@ -8,13 +9,13 @@ public class HostedTrackerService : IHostedService
 {
     private TrackerServer _tracker = new();
     private readonly APITrackerListener _trackerListener;
-    private readonly ClientEngine _client;
+    private readonly ITorrentService _torrentService;
     private readonly SemaphoreSlim _semaphore = new(1);
 
-    public HostedTrackerService(APITrackerListener trackerListener, ClientEngine client)
+    public HostedTrackerService(APITrackerListener trackerListener, ITorrentService torrentService)
     {
         _trackerListener = trackerListener;
-        _client = client;
+        _torrentService = torrentService;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -35,16 +36,17 @@ public class HostedTrackerService : IHostedService
         Console.WriteLine(
             $"{e.Peer.ClientApp.Client} {e.Peer.ClientAddress} wants {e.Torrent.Trackable.Name}"
         );
+        var engine = _torrentService.GetEngine();
         if (
             e.Peer.HasCompleted
             && !string.Equals(
                 e.Peer.PeerId.Text,
-                _client.PeerId.Text,
+                engine.PeerId.Text,
                 StringComparison.OrdinalIgnoreCase
             )
         )
         {
-            var torrentManager = _client.Torrents.FirstOrDefault(
+            var torrentManager = engine.Torrents.FirstOrDefault(
                 x => x.InfoHashes.Contains(e.Torrent.Trackable.InfoHash)
             );
             if (torrentManager is not null)
@@ -53,7 +55,7 @@ public class HostedTrackerService : IHostedService
                 if (torrentManager.State != TorrentState.Stopped)
                     await torrentManager.StopAsync();
                 _semaphore.Release();
-                await _client.RemoveAsync(torrentManager);
+                await engine.RemoveAsync(torrentManager);
             }
         }
     }

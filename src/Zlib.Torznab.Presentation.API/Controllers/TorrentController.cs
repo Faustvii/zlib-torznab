@@ -2,9 +2,9 @@ using Ipfs.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MonoTorrent;
-using MonoTorrent.Client;
 using Zlib.Torznab.Models.Repositories;
 using Zlib.Torznab.Models.Settings;
+using Zlib.Torznab.Services.Torrents;
 
 namespace Zlib.Torznab.Presentation.API.Controllers;
 
@@ -13,17 +13,17 @@ namespace Zlib.Torznab.Presentation.API.Controllers;
 public class TorrentController : ControllerBase
 {
     private readonly IFictionRepository _fictionRepository;
-    private readonly ClientEngine _clientEngine;
+    private readonly ITorrentService _torrentService;
     private readonly ApplicationSettings _applicationSettings;
 
     public TorrentController(
         IFictionRepository fictionRepository,
-        ClientEngine clientEngine,
+        ITorrentService torrentService,
         IOptions<ApplicationSettings> optionsAccessor
     )
     {
         _fictionRepository = fictionRepository;
-        _clientEngine = clientEngine;
+        _torrentService = torrentService;
         _applicationSettings = optionsAccessor.Value;
     }
 
@@ -75,7 +75,7 @@ public class TorrentController : ControllerBase
 
         var torrentBytes = createResult.Encode();
         var torrent = MonoTorrent.Torrent.Load(createResult);
-        var manager = await _clientEngine.AddAsync(torrent, dir);
+        var manager = await _torrentService.GetEngine().AddAsync(torrent, dir);
         await manager.StartAsync();
 
         return File(torrentBytes, "application/x-bittorrent", $"{ipfs}.torrent");
