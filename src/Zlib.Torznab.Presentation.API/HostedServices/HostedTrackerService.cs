@@ -32,6 +32,9 @@ public class HostedTrackerService : IHostedService
 
     private async Task StopSeedingWhenDownloaded(object? o, AnnounceEventArgs e)
     {
+        Console.WriteLine(
+            $"{e.Peer.ClientApp.Client} {e.Peer.ClientAddress} wants {e.Torrent.Trackable.Name}"
+        );
         if (
             e.Peer.HasCompleted
             && !string.Equals(

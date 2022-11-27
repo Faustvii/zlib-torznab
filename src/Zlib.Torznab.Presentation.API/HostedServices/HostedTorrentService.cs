@@ -25,6 +25,7 @@ public class HostedTorrentService : IHostedService
 
     private async Task BindMonoTorrentToSpecificInterface()
     {
+        await Task.Delay(10000);
         foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
         {
             var ipProperties = nic.GetIPProperties();
