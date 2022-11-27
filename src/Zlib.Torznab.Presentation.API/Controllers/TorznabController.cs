@@ -27,12 +27,12 @@ public class TorznabController : ControllerBase
                 => await _torznabService.GetFeed(
                     new TorznabRequest(
                         request.Categories,
-                        request.Limit,
-                        request.Offset,
                         request.Query,
                         request.Author,
                         request.Title,
-                        request.Year
+                        request.Year,
+                        request.Limit,
+                        request.Offset
                     )
                 ),
         };
