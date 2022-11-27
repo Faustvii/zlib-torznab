@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/Faustvii/zlib-torznab/compare/v1.1.0...v1.2.0) (2022-11-27)
+
+
+### Bug Fixes
+
+* try add task delay to see if all interfaces will be listed. ([b74979e](https://github.com/Faustvii/zlib-torznab/commit/b74979ef0d1f3ed331d149a8e9ee0dc026b74ebb))
+
+
+### Features
+
+* added ip translator ([cecd30d](https://github.com/Faustvii/zlib-torznab/commit/cecd30d976b320053a501091b9109cabd4602ca3))
+
 # [1.1.0](https://github.com/Faustvii/zlib-torznab/compare/v1.0.1...v1.1.0) (2022-11-27)
 
 
