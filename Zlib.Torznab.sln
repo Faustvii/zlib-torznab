@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{688E0465-7B3F-48A0-B8AC-22F90D16E5B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlib.Torznab.Presentation.API", "src\Zlib.Torznab.Presentation.API\Zlib.Torznab.Presentation.API.csproj", "{A20A2364-4925-4BAA-B8A4-29FA687B3817}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlib.Torznab.Models", "src\Zlib.Torznab.Models\Zlib.Torznab.Models.csproj", "{42C1FBFC-510B-403E-84AE-9D2C4E3D7A3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlib.Torznab.Persistence", "src\Zlib.Torznab.Persistence\Zlib.Torznab.Persistence.csproj", "{3ADB068D-52B5-43C2-A54B-BFC3C5A7C4F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlib.Torznab.Services", "src\Zlib.Torznab.Services\Zlib.Torznab.Services.csproj", "{6019E203-ED1D-4ADB-9D9F-32DB681E4ACE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A20A2364-4925-4BAA-B8A4-29FA687B3817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A20A2364-4925-4BAA-B8A4-29FA687B3817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A20A2364-4925-4BAA-B8A4-29FA687B3817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A20A2364-4925-4BAA-B8A4-29FA687B3817}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42C1FBFC-510B-403E-84AE-9D2C4E3D7A3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42C1FBFC-510B-403E-84AE-9D2C4E3D7A3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42C1FBFC-510B-403E-84AE-9D2C4E3D7A3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42C1FBFC-510B-403E-84AE-9D2C4E3D7A3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3ADB068D-52B5-43C2-A54B-BFC3C5A7C4F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ADB068D-52B5-43C2-A54B-BFC3C5A7C4F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3ADB068D-52B5-43C2-A54B-BFC3C5A7C4F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3ADB068D-52B5-43C2-A54B-BFC3C5A7C4F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6019E203-ED1D-4ADB-9D9F-32DB681E4ACE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6019E203-ED1D-4ADB-9D9F-32DB681E4ACE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6019E203-ED1D-4ADB-9D9F-32DB681E4ACE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6019E203-ED1D-4ADB-9D9F-32DB681E4ACE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A20A2364-4925-4BAA-B8A4-29FA687B3817} = {688E0465-7B3F-48A0-B8AC-22F90D16E5B0}
+		{42C1FBFC-510B-403E-84AE-9D2C4E3D7A3D} = {688E0465-7B3F-48A0-B8AC-22F90D16E5B0}
+		{3ADB068D-52B5-43C2-A54B-BFC3C5A7C4F9} = {688E0465-7B3F-48A0-B8AC-22F90D16E5B0}
+		{6019E203-ED1D-4ADB-9D9F-32DB681E4ACE} = {688E0465-7B3F-48A0-B8AC-22F90D16E5B0}
+	EndGlobalSection
+EndGlobal

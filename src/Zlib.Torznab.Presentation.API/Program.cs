@@ -1,0 +1,102 @@
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
+using MonoTorrent.Client;
+using MonoTorrent.Connections.TrackerServer;
+using Zlib.Torznab.Models.Repositories;
+using Zlib.Torznab.Models.Settings;
+using Zlib.Torznab.Persistence;
+using Zlib.Torznab.Persistence.Repositories;
+using Zlib.Torznab.Presentation.API;
+using Zlib.Torznab.Presentation.API.HostedServices;
+using Zlib.Torznab.Presentation.API.Services;
+using Zlib.Torznab.Services.Torznab;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// builder.WebHost.UseUrls("http://*:47001");
+
+// Add services to the container.
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+});
+
+builder.Services.Configure<JsonOptions>(opts =>
+{
+    opts.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+builder.Services
+    .AddControllers(x =>
+    {
+        // x.RespectBrowserAcceptHeader = true;
+        x.FormatterMappings.SetMediaTypeMappingForFormat(
+            "xml",
+            MediaTypeHeaderValue.Parse("application/xml")
+        );
+        x.OutputFormatters.Add(new XmlSerializerOutputFormatterTorznabNamespace());
+        x.OutputFormatters.Add(new StringOutputFormatter());
+    })
+    .AddXmlSerializerFormatters();
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<ClientEngine>();
+builder.Services.AddHostedService<HostedTorrentService>();
+
+builder.Services.AddHostedService<HostedTrackerService>();
+builder.Services.AddSingleton<ITrackerListener, APITrackerListener>();
+builder.Services.AddSingleton<APITrackerListener>();
+
+builder.Services.AddScoped<IFictionRepository, FictionRepository>();
+
+builder.Services.AddScoped<ITorznabService, TorznabService>();
+
+builder.Services.Configure<ApplicationSettings>(
+    builder.Configuration.GetSection(ApplicationSettings.Key)
+);
+
+builder.Services.Configure<IpfsSettings>(builder.Configuration.GetSection(IpfsSettings.Key));
+
+builder.Services.Configure<Zlib.Torznab.Models.Settings.TorrentSettings>(
+    builder.Configuration.GetSection(Zlib.Torznab.Models.Settings.TorrentSettings.Key)
+);
+
+builder.Services.Configure<TorznabSettings>(builder.Configuration.GetSection(TorznabSettings.Key));
+
+var connectionString = builder.Configuration.GetConnectionString("Archive");
+var serverVersion = ServerVersion.AutoDetect(connectionString);
+builder.Services.AddDbContext<ArchiveContext>(
+    opts =>
+        opts.UseMySql(
+                connectionString,
+                serverVersion,
+                o => o.EnableStringComparisonTranslations().EnableIndexOptimizedBooleanColumns()
+            )
+            .LogTo(Console.WriteLine, LogLevel.Information)
+            .EnableSensitiveDataLogging()
+            .EnableDetailedErrors()
+);
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+// if (app.Environment.IsDevelopment())
+// {
+app.UseSwagger();
+app.UseSwaggerUI(x => x.DisplayRequestDuration());
+
+// }
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
