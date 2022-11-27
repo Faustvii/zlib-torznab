@@ -25,7 +25,9 @@ public class FictionRepository : IFictionRepository
 
     public async Task<IReadOnlyList<Book>> GetFictionsFromTorznabQuery(TorznabRequest request)
     {
-        var (_, limit, offset, query, author, title, year) = request;
+        var (_, query, author, title, year, limit, offset) = request;
+        if (limit > 100)
+            limit = 100;
         var queryable = GetQueryable();
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -52,8 +54,7 @@ public class FictionRepository : IFictionRepository
             queryable = queryable.Where(x => x.Fiction.Year == year);
 
         return await queryable
-            .OrderByDescending(x => x.Fiction.TimeAdded)
-            .ThenByDescending(x => x.Fiction.TimeLastModified)
+            .OrderByDescending(x => x.Fiction.Id)
             .Select(x => MapItem(x))
             .Skip(offset)
             .Take(limit)
