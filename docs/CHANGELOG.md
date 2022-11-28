@@ -1,3 +1,12 @@
+# [1.3.0](https://github.com/Faustvii/zlib-torznab/compare/v1.2.0...v1.3.0) (2022-11-28)
+
+
+### Features
+
+* added libgen data and possibility to search both datasets ([aa2c2f2](https://github.com/Faustvii/zlib-torznab/commit/aa2c2f26f6d22908d4fd4cafce1c1cc7b47ac46a))
+* switched to md5 as identifier instead of ipfs cid ([a69060d](https://github.com/Faustvii/zlib-torznab/commit/a69060d40da691dc81d27cb0628facd314be0b8b))
+* use fulltext indexes for searching ([9a58ca9](https://github.com/Faustvii/zlib-torznab/commit/9a58ca98312662b3141053d7f2c96a9238f5e409))
+
 # [1.2.0](https://github.com/Faustvii/zlib-torznab/compare/v1.1.0...v1.2.0) (2022-11-27)
 
 
