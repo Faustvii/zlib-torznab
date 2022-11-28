@@ -12,17 +12,17 @@ namespace Zlib.Torznab.Presentation.API.Controllers;
 [Route("[controller]")]
 public class TorrentController : ControllerBase
 {
-    private readonly IFictionRepository _fictionRepository;
+    private readonly IBookRepository _bookRepository;
     private readonly ITorrentService _torrentService;
     private readonly ApplicationSettings _applicationSettings;
 
     public TorrentController(
-        IFictionRepository fictionRepository,
+        IBookRepository bookRepository,
         ITorrentService torrentService,
         IOptions<ApplicationSettings> optionsAccessor
     )
     {
-        _fictionRepository = fictionRepository;
+        _bookRepository = bookRepository;
         _torrentService = torrentService;
         _applicationSettings = optionsAccessor.Value;
     }
@@ -32,7 +32,7 @@ public class TorrentController : ControllerBase
     [ProducesResponseType(typeof(FileContentResult), 200)]
     public async Task<IActionResult> Torrent(string ipfs)
     {
-        var book = await _fictionRepository.GetFictionFromIpfs(ipfs);
+        var book = await _bookRepository.GetBookFromIpfs(ipfs);
         if (book is null)
             return NotFound();
 

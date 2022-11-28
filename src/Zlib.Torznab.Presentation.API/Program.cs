@@ -50,7 +50,7 @@ builder.Services.AddSingleton<ITrackerListener, APITrackerListener>();
 builder.Services.AddSingleton<APITrackerListener>();
 builder.Services.AddSingleton<ITorrentService, TorrentService>();
 
-builder.Services.AddScoped<IFictionRepository, FictionRepository>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
 
 builder.Services.AddScoped<ITorznabService, TorznabService>();
 
@@ -69,13 +69,13 @@ var serverVersion = ServerVersion.AutoDetect(connectionString);
 builder.Services.AddDbContext<ArchiveContext>(
     opts =>
         opts.UseMySql(
-                connectionString,
-                serverVersion,
-                o => o.EnableStringComparisonTranslations().EnableIndexOptimizedBooleanColumns()
-            )
-            .LogTo(Console.WriteLine, LogLevel.Information)
-            .EnableSensitiveDataLogging()
-            .EnableDetailedErrors()
+            connectionString,
+            serverVersion,
+            o => o.EnableStringComparisonTranslations().EnableIndexOptimizedBooleanColumns()
+        )
+// .LogTo(Console.WriteLine, LogLevel.Information)
+// .EnableSensitiveDataLogging()
+// .EnableDetailedErrors()
 );
 
 var app = builder.Build();

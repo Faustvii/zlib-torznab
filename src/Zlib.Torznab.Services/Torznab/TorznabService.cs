@@ -11,15 +11,15 @@ namespace Zlib.Torznab.Services.Torznab;
 
 public class TorznabService : ITorznabService
 {
-    private readonly IFictionRepository _fictionRepository;
+    private readonly IBookRepository _bookRepository;
     private readonly ApplicationSettings _applicationSettings;
 
     public TorznabService(
-        IFictionRepository fictionRepository,
+        IBookRepository bookRepository,
         IOptions<ApplicationSettings> optionsAccessor
     )
     {
-        _fictionRepository = fictionRepository;
+        _bookRepository = bookRepository;
         _applicationSettings = optionsAccessor.Value;
     }
 
@@ -56,7 +56,7 @@ public class TorznabService : ITorznabService
 
     public async Task<TorznabRss> GetFeed(TorznabRequest request)
     {
-        var items = await _fictionRepository.GetFictionsFromTorznabQuery(request);
+        var items = await _bookRepository.GetBooksFromTorznabQuery(request);
 
         var result = new TorznabRss
         {

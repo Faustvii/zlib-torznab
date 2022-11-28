@@ -1,16 +1,17 @@
 namespace Zlib.Torznab.Models.Archive;
 
-public record Book(
-    uint Id,
-    string Md5,
-    string Author,
-    string Title,
-    string Year,
-    string Extension,
-    DateTime TimeAdded,
-    string IpfsCid,
-    uint Filesize,
-    string Pages,
-    string Language,
-    string Publisher
-);
+public record Book
+{
+    public uint Id { get; init; }
+    public string Md5 { get; init; } = string.Empty;
+    public string Author { get; init; } = string.Empty;
+    public string Title { get; init; } = string.Empty;
+    public string Year { get; init; } = string.Empty;
+    public string Extension { get; init; } = string.Empty;
+    public DateTime TimeAdded { get; init; }
+    public string IpfsCid { get; init; } = string.Empty;
+    public uint Filesize { get; init; }
+    public string Pages { get; init; } = string.Empty;
+    public string Language { get; init; } = string.Empty;
+    public string Publisher { get; init; } = string.Empty;
+}
