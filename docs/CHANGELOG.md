@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/Faustvii/zlib-torznab/compare/v1.4.1...v1.5.0) (2022-11-28)
+
+
+### Features
+
+* added queue download from ipfs if only one result ([153a0b5](https://github.com/Faustvii/zlib-torznab/commit/153a0b5b33ad9dc925d04583326f2d96c3e5e685))
+
 ## [1.4.1](https://github.com/Faustvii/zlib-torznab/compare/v1.4.0...v1.4.1) (2022-11-28)
 
 
