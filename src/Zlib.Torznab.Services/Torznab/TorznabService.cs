@@ -78,8 +78,8 @@ public class TorznabService : ITorznabService
     {
         return new Item
         {
-            Title = $"{x.Author} - {x.Title} {x.Year} {x.Extension}",
-            TorznabGuid = new TorznabGuid { IsPermaLink = false, Text = x.Md5, },
+            Title = $"{x.Author} - {x.Title} {x.Year} ({x.Publisher} {x.Extension})",
+            TorznabGuid = new TorznabGuid { IsPermaLink = true, Text = x.Md5, },
             PubDate = x.TimeAdded.ToString("r", CultureInfo.InvariantCulture),
             Source = new Source { Url = $"{_applicationSettings.Torznab.SourceUrlBase}{x.Md5}" },
             Attr = new List<Attr>
@@ -102,7 +102,7 @@ public class TorznabService : ITorznabService
                 new Attr { Name = "downloadvolumefactor", Value = "0", },
                 new Attr { Name = "language", Value = x.Language, },
                 new Attr { Name = "type", Value = "book", },
-                new Attr { Name = "publisher", Value = x.Pages, },
+                new Attr { Name = "publisher", Value = x.Publisher, },
             },
             Enclosure = new List<Enclosure>
             {
