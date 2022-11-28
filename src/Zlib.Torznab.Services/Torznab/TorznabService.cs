@@ -79,7 +79,7 @@ public class TorznabService : ITorznabService
         return new Item
         {
             Title = $"{x.Author} - {x.Title} {x.Year} {x.Extension}",
-            TorznabGuid = new TorznabGuid { IsPermaLink = false, Text = x.IpfsCid, },
+            TorznabGuid = new TorznabGuid { IsPermaLink = false, Text = x.Md5, },
             PubDate = x.TimeAdded.ToString("r", CultureInfo.InvariantCulture),
             Source = new Source { Url = $"{_applicationSettings.Torznab.SourceUrlBase}{x.Md5}" },
             Attr = new List<Attr>
@@ -108,7 +108,7 @@ public class TorznabService : ITorznabService
             {
                 new Enclosure
                 {
-                    Url = $"{_applicationSettings.Torznab.TorrentDownloadBase}{x.IpfsCid}",
+                    Url = $"{_applicationSettings.Torznab.TorrentDownloadBase}{x.Md5}",
                     Type = "application/x-bittorrent",
                     Length = (int)x.Filesize,
                 },

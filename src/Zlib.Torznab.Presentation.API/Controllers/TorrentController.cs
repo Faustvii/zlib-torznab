@@ -28,23 +28,23 @@ public class TorrentController : ControllerBase
     }
 
     [HttpGet]
-    [Route("{ipfs}")]
+    [Route("{md5}")]
     [ProducesResponseType(typeof(FileContentResult), 200)]
-    public async Task<IActionResult> Torrent(string ipfs)
+    public async Task<IActionResult> Torrent(string md5)
     {
-        var book = await _bookRepository.GetBookFromIpfs(ipfs);
+        var book = await _bookRepository.GetBookFromMd5(md5);
         if (book is null)
             return NotFound();
 
         var ipfsClient = new IpfsClient(_applicationSettings.Ipfs.Gateway);
         var rootDirectory = _applicationSettings.Torrent.DownloadDirectory;
-        var dir = Path.Combine(rootDirectory, ipfs);
-        var fileName = $"{ipfs}.{book.Extension}";
+        var dir = Path.Combine(rootDirectory, book.IpfsCid);
+        var fileName = $"{book.IpfsCid}.{book.Extension}";
 
         if (!System.IO.File.Exists(Path.Combine(dir, fileName)))
         {
             await using var fileContent = await ipfsClient.FileSystem.ReadFileAsync(
-                ipfs,
+                book.IpfsCid,
                 HttpContext.RequestAborted
             );
             Directory.CreateDirectory(dir);
@@ -58,7 +58,7 @@ public class TorrentController : ControllerBase
             PieceLength = TorrentCreator.RecommendedPieceSize(
                 new[] { Path.Combine(dir, fileName) }
             ),
-            Comment = ipfs,
+            Comment = book.IpfsCid,
             Private = true,
             Announce = _applicationSettings.Torrent.TrackerUrl,
         };
@@ -78,6 +78,6 @@ public class TorrentController : ControllerBase
         var manager = await _torrentService.GetEngine().AddAsync(torrent, dir);
         await manager.StartAsync();
 
-        return File(torrentBytes, "application/x-bittorrent", $"{ipfs}.torrent");
+        return File(torrentBytes, "application/x-bittorrent", $"{md5}.torrent");
     }
 }
