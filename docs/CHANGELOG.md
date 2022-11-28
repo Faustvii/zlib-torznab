@@ -1,3 +1,11 @@
+## [1.4.1](https://github.com/Faustvii/zlib-torznab/compare/v1.4.0...v1.4.1) (2022-11-28)
+
+
+### Bug Fixes
+
+* improved query so all "words" must exist in author and title when doing fulltext ([737b60f](https://github.com/Faustvii/zlib-torznab/commit/737b60fb7697eb590bc5876921ac2b9556209839))
+* publisher was mapped to pages ([3265f3d](https://github.com/Faustvii/zlib-torznab/commit/3265f3da298c0ae2a0cff9c4409cfac8ecc8854e))
+
 # [1.4.0](https://github.com/Faustvii/zlib-torznab/compare/v1.3.0...v1.4.0) (2022-11-28)
 
 
