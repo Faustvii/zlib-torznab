@@ -88,6 +88,7 @@ public class BookRepository : IBookRepository
                 x.IpfsCid != ""
 #pragma warning disable MA0002 // Does not work with LINQ to entities
                 && AllowedExtensions.Contains(x.Extension)
+                && (x.Language == "" || x.Language == "English")
 #pragma warning restore MA0002
         );
         if (!string.IsNullOrWhiteSpace(request.Query))
