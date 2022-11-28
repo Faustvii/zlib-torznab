@@ -23,7 +23,7 @@ public class FictionRepository : IFictionRepository
         return MapItem(entity);
     }
 
-    public async Task<IReadOnlyList<Book>> GetFictionsFromTorznabQuery(TorznabRequest request)
+    public IQueryable<Book> GetFictionsQueryableFromTorznabQuery(TorznabRequest request)
     {
         var (_, query, author, title, year, limit, offset) = request;
         if (limit > 100)
@@ -31,33 +31,48 @@ public class FictionRepository : IFictionRepository
         var queryable = GetQueryable();
         if (!string.IsNullOrWhiteSpace(query))
         {
-            var queries = query.Split(
-                ' ',
-                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
-            );
             queryable = queryable.Where(
                 x =>
-#pragma warning disable MA0002 // Does not work with LINQ to entities
-                    queries.Contains(x.Fiction.Title) || queries.Contains(x.Fiction.Author)
-#pragma warning restore MA0002
-
+                    EF.Functions.Match(
+                        x.Fiction.Title,
+                        request.Query,
+                        MySqlMatchSearchMode.NaturalLanguage
+                    )
+                    && EF.Functions.Match(
+                        x.Fiction.Author,
+                        request.Query,
+                        MySqlMatchSearchMode.NaturalLanguage
+                    )
             );
         }
 
         if (!string.IsNullOrWhiteSpace(author))
-            queryable = queryable.Where(x => x.Fiction.Author == author);
+            queryable = queryable.Where(
+                x =>
+                    EF.Functions.Match(
+                        x.Fiction.Author,
+                        author,
+                        MySqlMatchSearchMode.NaturalLanguage
+                    )
+            );
 
         if (!string.IsNullOrWhiteSpace(title))
-            queryable = queryable.Where(x => x.Fiction.Title == title);
+            queryable = queryable.Where(
+                x =>
+                    EF.Functions.Match(x.Fiction.Title, title, MySqlMatchSearchMode.NaturalLanguage)
+            );
 
         if (!string.IsNullOrWhiteSpace(year))
             queryable = queryable.Where(x => x.Fiction.Year == year);
 
-        return await queryable
-            .OrderByDescending(x => x.Fiction.Id)
-            .Select(x => MapItem(x))
-            .Skip(offset)
-            .Take(limit)
+        return queryable.OrderByDescending(x => x.Fiction.Id).Select(x => MapItem(x));
+    }
+
+    public async Task<IReadOnlyList<Book>> GetFictionsFromTorznabQuery(TorznabRequest request)
+    {
+        return await GetFictionsQueryableFromTorznabQuery(request)
+            .Skip(request.Offset)
+            .Take(request.Limit)
             .ToListAsync();
     }
 

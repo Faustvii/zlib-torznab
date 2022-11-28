@@ -7,4 +7,5 @@ public interface IFictionRepository
 {
     Task<Book?> GetFictionFromIpfs(string ipfs);
     Task<IReadOnlyList<Book>> GetFictionsFromTorznabQuery(TorznabRequest request);
+    IQueryable<Book> GetFictionsQueryableFromTorznabQuery(TorznabRequest request);
 }
