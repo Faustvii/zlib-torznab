@@ -106,21 +106,29 @@ public class BookRepository : IBookRepository
 
         if (!string.IsNullOrWhiteSpace(request.Author))
         {
+            var author = string.Join(
+                " ",
+                request.Author
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => $"+{x.Trim()}")
+                    .ToArray()
+            );
             query = query.Where(
-                x =>
-                    EF.Functions.Match(
-                        x.Author,
-                        request.Author,
-                        MySqlMatchSearchMode.NaturalLanguage
-                    )
+                x => EF.Functions.Match(x.Author, author, MySqlMatchSearchMode.Boolean)
             );
         }
 
         if (!string.IsNullOrWhiteSpace(request.Title))
         {
+            var title = string.Join(
+                " ",
+                request.Title
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => $"+{x.Trim()}")
+                    .ToArray()
+            );
             query = query.Where(
-                x =>
-                    EF.Functions.Match(x.Title, request.Title, MySqlMatchSearchMode.NaturalLanguage)
+                x => EF.Functions.Match(x.Title, title, MySqlMatchSearchMode.Boolean)
             );
         }
 
