@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/Faustvii/zlib-torznab/compare/v1.3.0...v1.4.0) (2022-11-28)
+
+
+### Features
+
+* filter books by english language ([fa1020b](https://github.com/Faustvii/zlib-torznab/commit/fa1020b3299ef73621f22041198a9cd571523111))
+
 # [1.3.0](https://github.com/Faustvii/zlib-torznab/compare/v1.2.0...v1.3.0) (2022-11-28)
 
 
