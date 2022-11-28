@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using MonoTorrent.Connections.TrackerServer;
+using Zlib.Torznab.Models.Queues;
 using Zlib.Torznab.Models.Repositories;
 using Zlib.Torznab.Models.Settings;
 using Zlib.Torznab.Persistence;
@@ -43,8 +44,11 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSingleton<IBackgroundJobPool>(new DefaultBackgroundJobPool(30));
+
 builder.Services.AddHostedService<HostedTorrentService>();
 builder.Services.AddHostedService<HostedTrackerService>();
+builder.Services.AddHostedService<HostedBackgroundJobPoolService>();
 
 builder.Services.AddSingleton<ITrackerListener, APITrackerListener>();
 builder.Services.AddSingleton<APITrackerListener>();

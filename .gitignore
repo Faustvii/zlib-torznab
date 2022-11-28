@@ -416,4 +416,4 @@ FodyWeavers.xsd
 
 src/Zlib.Torznab.Presentation.API/temp/
 
-src/Zlib.Torznab.Presentation.API/cache/metadata/
+src/Zlib.Torznab.Presentation.API/cache/

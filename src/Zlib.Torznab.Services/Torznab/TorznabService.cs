@@ -1,6 +1,8 @@
 using System.Globalization;
+using Ipfs.Http;
 using Microsoft.Extensions.Options;
 using Zlib.Torznab.Models.Archive;
+using Zlib.Torznab.Models.Queues;
 using Zlib.Torznab.Models.Repositories;
 using Zlib.Torznab.Models.Settings;
 using Zlib.Torznab.Models.Torznab;
@@ -13,14 +15,17 @@ public class TorznabService : ITorznabService
 {
     private readonly IBookRepository _bookRepository;
     private readonly ApplicationSettings _applicationSettings;
+    private readonly IBackgroundJobPool _jobPool;
 
     public TorznabService(
         IBookRepository bookRepository,
-        IOptions<ApplicationSettings> optionsAccessor
+        IOptions<ApplicationSettings> optionsAccessor,
+        IBackgroundJobPool jobPool
     )
     {
         _bookRepository = bookRepository;
         _applicationSettings = optionsAccessor.Value;
+        _jobPool = jobPool;
     }
 
     public Task<TorznabCapabilitiesResponse> GetCapabilities()
@@ -71,7 +76,34 @@ public class TorznabService : ITorznabService
         if (request.Offset > 200 && !string.IsNullOrWhiteSpace(request.Query))
             result.Channel.Item = new();
 
+        if (items.Count == 1)
+        {
+            await _jobPool.QueueBackgroundWorkItemAsync((ct) => QueueIPFSDownload(items[0], ct));
+        }
+
         return result;
+    }
+
+    private async ValueTask QueueIPFSDownload(Book book, CancellationToken cancellationToken)
+    {
+        var ipfsClient = new IpfsClient(_applicationSettings.Ipfs.Gateway);
+        var rootDirectory = _applicationSettings.Torrent.DownloadDirectory;
+        var dir = Path.Combine(rootDirectory, book.IpfsCid);
+        var fileName = $"{book.IpfsCid}.{book.Extension}";
+
+        if (!File.Exists(Path.Combine(dir, fileName)))
+        {
+            Console.WriteLine($"Queuing download of {book.Title} {book.Author} - {book.IpfsCid}");
+            await using var fileContent = await ipfsClient.FileSystem.ReadFileAsync(
+                book.IpfsCid,
+                cancellationToken
+            );
+            Directory.CreateDirectory(dir);
+            await using var fileStream = File.Create(Path.Combine(dir, fileName));
+            await fileContent.CopyToAsync(fileStream, cancellationToken);
+            fileStream.Close();
+            Console.WriteLine($"Finished download of {book.Title} {book.Author} - {book.IpfsCid}");
+        }
     }
 
     private Item MapItem(Book x)
