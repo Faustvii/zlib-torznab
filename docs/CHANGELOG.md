@@ -1,3 +1,10 @@
+## [1.5.7](https://github.com/Faustvii/zlib-torznab/compare/v1.5.6...v1.5.7) (2022-11-29)
+
+
+### Bug Fixes
+
+* preloading was using old ipfs client to download ([fd5dbd7](https://github.com/Faustvii/zlib-torznab/commit/fd5dbd7fd325a964c06f58b19b91a143743d310b))
+
 ## [1.5.6](https://github.com/Faustvii/zlib-torznab/compare/v1.5.5...v1.5.6) (2022-11-29)
 
 
