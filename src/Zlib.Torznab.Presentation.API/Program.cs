@@ -12,6 +12,7 @@ using Zlib.Torznab.Persistence.Repositories;
 using Zlib.Torznab.Presentation.API;
 using Zlib.Torznab.Presentation.API.HostedServices;
 using Zlib.Torznab.Presentation.API.Services;
+using Zlib.Torznab.Services.Ipfs;
 using Zlib.Torznab.Services.Torrents;
 using Zlib.Torznab.Services.Torznab;
 
@@ -53,6 +54,8 @@ builder.Services.AddHostedService<HostedBackgroundJobPoolService>();
 builder.Services.AddSingleton<ITrackerListener, APITrackerListener>();
 builder.Services.AddSingleton<APITrackerListener>();
 builder.Services.AddSingleton<ITorrentService, TorrentService>();
+
+builder.Services.AddHttpClient<IIpfsGateway, IpfsGateway>();
 
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 

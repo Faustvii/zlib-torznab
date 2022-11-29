@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using Microsoft.Extensions.Options;
 using MonoTorrent.Client;
+using Zlib.Torznab.Models.Queues;
 using Zlib.Torznab.Services.Torrents;
 using DomainTorrentSettings = Zlib.Torznab.Models.Settings.TorrentSettings;
 
@@ -10,26 +11,29 @@ namespace Zlib.Torznab.Presentation.API.HostedServices;
 public class HostedTorrentService : IHostedService
 {
     private readonly ITorrentService _torrentService;
+    private readonly IBackgroundJobPool _jobPool;
     private readonly DomainTorrentSettings _torrentSettings;
 
     public HostedTorrentService(
         ITorrentService torrentService,
+        IBackgroundJobPool jobPool,
         IOptions<DomainTorrentSettings> options
     )
     {
         _torrentService = torrentService;
+        _jobPool = jobPool;
         _torrentSettings = options.Value;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await BindMonoTorrentToSpecificInterface();
+        await _jobPool.QueueBackgroundWorkItemAsync((ct) => BindMonoTorrentToSpecificInterface());
         await _torrentService.GetEngine().StartAllAsync();
     }
 
-    private async Task BindMonoTorrentToSpecificInterface()
+    private async ValueTask BindMonoTorrentToSpecificInterface()
     {
-        // await Task.Delay(10000);
+        await Task.Delay(10000);
         foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
         {
             var ipProperties = nic.GetIPProperties();

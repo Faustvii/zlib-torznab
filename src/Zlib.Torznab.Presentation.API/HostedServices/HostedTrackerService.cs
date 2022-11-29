@@ -46,6 +46,9 @@ public class HostedTrackerService : IHostedService
             )
         )
         {
+            Console.WriteLine(
+                $"{e.Peer.ClientApp.Client} {e.Peer.ClientAddress} has completed the download, stopping seed"
+            );
             var torrentManager = engine.Torrents.FirstOrDefault(
                 x => x.InfoHashes.Contains(e.Torrent.Trackable.InfoHash)
             );

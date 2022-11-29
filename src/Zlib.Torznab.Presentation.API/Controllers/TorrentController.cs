@@ -1,9 +1,9 @@
-using Ipfs.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MonoTorrent;
 using Zlib.Torznab.Models.Repositories;
 using Zlib.Torznab.Models.Settings;
+using Zlib.Torznab.Services.Ipfs;
 using Zlib.Torznab.Services.Torrents;
 
 namespace Zlib.Torznab.Presentation.API.Controllers;
@@ -14,16 +14,19 @@ public class TorrentController : ControllerBase
 {
     private readonly IBookRepository _bookRepository;
     private readonly ITorrentService _torrentService;
+    private readonly IIpfsGateway _ipfsGateway;
     private readonly ApplicationSettings _applicationSettings;
 
     public TorrentController(
         IBookRepository bookRepository,
         ITorrentService torrentService,
-        IOptions<ApplicationSettings> optionsAccessor
+        IOptions<ApplicationSettings> optionsAccessor,
+        IIpfsGateway ipfsGateway
     )
     {
         _bookRepository = bookRepository;
         _torrentService = torrentService;
+        _ipfsGateway = ipfsGateway;
         _applicationSettings = optionsAccessor.Value;
     }
 
@@ -36,29 +39,25 @@ public class TorrentController : ControllerBase
         if (book is null)
             return NotFound();
 
-        var ipfsClient = new IpfsClient(_applicationSettings.Ipfs.Gateway);
         var rootDirectory = _applicationSettings.Torrent.DownloadDirectory;
         var dir = Path.Combine(rootDirectory, book.IpfsCid);
         var fileName = $"{book.IpfsCid}.{book.Extension}";
 
-        if (!System.IO.File.Exists(Path.Combine(dir, fileName)))
-        {
-            await using var fileContent = await ipfsClient.FileSystem.ReadFileAsync(
+        if (
+            !await _ipfsGateway.DownloadFileAsync(
                 book.IpfsCid,
+                book.Extension,
                 HttpContext.RequestAborted
-            );
-            Directory.CreateDirectory(dir);
-            await using var fileStream = System.IO.File.Create(Path.Combine(dir, fileName));
-            await fileContent.CopyToAsync(fileStream, HttpContext.RequestAborted);
-            fileStream.Close();
-        }
+            )
+        )
+            return NotFound();
 
         var torrentCreator = new TorrentCreator
         {
             PieceLength = TorrentCreator.RecommendedPieceSize(
                 new[] { Path.Combine(dir, fileName) }
             ),
-            Comment = book.IpfsCid,
+            Comment = $"{book.IpfsCid} - MD5 {book.Md5}",
             Private = true,
             Announce = _applicationSettings.Torrent.TrackerUrl,
         };
