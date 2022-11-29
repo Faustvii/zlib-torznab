@@ -1,10 +1,8 @@
+using Zlib.Torznab.Models.Archive;
+
 namespace Zlib.Torznab.Services.Ipfs;
 
 public interface IIpfsGateway
 {
-    Task<bool> DownloadFileAsync(
-        string ipfsCid,
-        string fileExtension,
-        CancellationToken cancellationToken
-    );
+    Task<bool> DownloadFileAsync(Book book, CancellationToken cancellationToken);
 }

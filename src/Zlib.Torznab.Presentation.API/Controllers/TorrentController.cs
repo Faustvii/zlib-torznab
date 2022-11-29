@@ -43,13 +43,7 @@ public class TorrentController : ControllerBase
         var dir = Path.Combine(rootDirectory, book.IpfsCid);
         var fileName = $"{book.IpfsCid}.{book.Extension}";
 
-        if (
-            !await _ipfsGateway.DownloadFileAsync(
-                book.IpfsCid,
-                book.Extension,
-                HttpContext.RequestAborted
-            )
-        )
+        if (!await _ipfsGateway.DownloadFileAsync(book, HttpContext.RequestAborted))
             return NotFound();
 
         var torrentCreator = new TorrentCreator
@@ -57,15 +51,12 @@ public class TorrentController : ControllerBase
             PieceLength = TorrentCreator.RecommendedPieceSize(
                 new[] { Path.Combine(dir, fileName) }
             ),
-            Comment = $"{book.IpfsCid} - MD5 {book.Md5}",
+            Comment = $"{book.FormattedTitle} {book.IpfsCid} - MD5 {book.Md5}",
             Private = true,
             Announce = _applicationSettings.Torrent.TrackerUrl,
         };
 
-        var torrentFileSource = new TorrentFileSource(dir)
-        {
-            TorrentName = $"{book.Author} - {book.Title} ({book.Year}) {book.Extension}",
-        };
+        var torrentFileSource = new TorrentFileSource(dir) { TorrentName = book.FormattedTitle, };
 
         var createResult = await torrentCreator.CreateAsync(
             torrentFileSource,
@@ -84,16 +75,6 @@ public class TorrentController : ControllerBase
                 Console.WriteLine(
                     $"connection failed {e.Peer.ConnectionUri} because of {e.Reason}"
                 );
-            manager.PeersFound += (o, e) =>
-                Console.WriteLine(
-                    $"We found {e.NewPeers} new peers {e.ExistingPeers} existing peers"
-                );
-            manager.TorrentStateChanged += (o, e) =>
-                Console.WriteLine($"{e.TorrentManager.Name} has new state {e.NewState}");
-            manager.PeerConnected += (o, e) =>
-                Console.WriteLine($"{e.Peer.ClientApp} connected with {e.Direction} direction");
-            manager.PeerDisconnected += (o, e) =>
-                Console.WriteLine($"{e.Peer.ClientApp} disconnected");
             await manager.StartAsync();
         }
         catch (TorrentException ex)

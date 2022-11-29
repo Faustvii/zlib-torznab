@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Zlib.Torznab.Models.Archive;
 using Zlib.Torznab.Models.Repositories;
@@ -19,48 +18,10 @@ public class BookRepository : IBookRepository
 
     public async Task<Book?> GetBookFromMd5(string ipfs)
     {
-        var fiction = await GetFictionQueryable().FirstOrDefaultAsync(x => x.Fiction.Md5 == ipfs);
-        var libgen = await GetLibgenQueryable().FirstOrDefaultAsync(x => x.Libgen.Md5 == ipfs);
-
-        return MapItem(fiction) ?? MapItem(libgen);
-    }
-
-    private IQueryable<FictionRecord> GetFictionQueryable()
-    {
-        return _context.Fictions
-            .Join(
-                _context.FictionHashes,
-                f => f.Md5,
-                fh => fh.Md5,
-                (f, fh) => new FictionRecord { Fiction = f, Hash = fh }
-            )
-            .Where(
-                x =>
-                    x.Hash.IpfsCid != null
-                    && x.Hash.IpfsCid != ""
-#pragma warning disable MA0002 // Does not work with LINQ to entities
-                    && AllowedExtensions.Contains(x.Fiction.Extension)
-#pragma warning restore MA0002
-            );
-    }
-
-    private IQueryable<LibgenRecord> GetLibgenQueryable()
-    {
-        return _context.Libgen
-            .Join(
-                _context.LibgenHashes,
-                f => f.Md5,
-                fh => fh.Md5,
-                (f, fh) => new LibgenRecord { Libgen = f, Hash = fh }
-            )
-            .Where(
-                x =>
-                    x.Hash.IpfsCid != null
-                    && x.Hash.IpfsCid != ""
-#pragma warning disable MA0002 // Does not work with LINQ to entities
-                    && AllowedExtensions.Contains(x.Libgen.Extension)
-#pragma warning restore MA0002
-            );
+        var book = await GetFictionQuery()
+            .Concat(GetLibgenQuery())
+            .FirstOrDefaultAsync(x => x.Md5 == ipfs);
+        return book;
     }
 
     public async Task<IReadOnlyList<Book>> GetBooksFromTorznabQuery(TorznabRequest request)
@@ -149,13 +110,6 @@ public class BookRepository : IBookRepository
                 fh => fh.Md5,
                 (f, fh) => new LibgenRecord { Libgen = f, Hash = fh }
             )
-            .Where(
-                x =>
-                    x.Hash.IpfsCid != ""
-#pragma warning disable MA0002 // Does not work with LINQ to entities
-                    && AllowedExtensions.Contains(x.Libgen.Extension)
-#pragma warning restore MA0002
-            )
             .Select(
                 x =>
                     new Book
@@ -172,6 +126,10 @@ public class BookRepository : IBookRepository
                         Pages = x.Libgen.Pages,
                         Language = x.Libgen.Language,
                         Publisher = x.Libgen.Publisher,
+                        Locator = x.Libgen.Locator,
+                        Identifier = string.IsNullOrEmpty(x.Libgen.Asin)
+                            ? x.Libgen.Identifier
+                            : x.Libgen.Asin,
                     }
             );
         return libgenQuery;
@@ -186,13 +144,6 @@ public class BookRepository : IBookRepository
                 fh => fh.Md5,
                 (f, fh) => new FictionRecord { Fiction = f, Hash = fh }
             )
-            //             .Where(
-            //                 x =>
-            //                     x.Hash.IpfsCid != ""
-            // #pragma warning disable MA0002 // Does not work with LINQ to entities
-            //                     && AllowedExtensions.Contains(x.Fiction.Extension)
-            // #pragma warning restore MA0002
-            //             )
             .Select(
                 x =>
                     new Book
@@ -209,54 +160,12 @@ public class BookRepository : IBookRepository
                         Pages = x.Fiction.Pages,
                         Language = x.Fiction.Language,
                         Publisher = x.Fiction.Publisher,
+                        Locator = x.Fiction.Locator,
+                        Identifier = string.IsNullOrEmpty(x.Fiction.Asin)
+                            ? x.Fiction.Identifier
+                            : x.Fiction.Asin,
                     }
             );
         return fictionQuery;
-    }
-
-    [return: NotNullIfNotNull(nameof(entity))]
-    private static Book? MapItem(FictionRecord? entity)
-    {
-        if (entity is null)
-            return null;
-
-        return new Book
-        {
-            Id = entity.Fiction.Id,
-            Md5 = entity.Fiction.Md5,
-            Author = entity.Fiction.Author,
-            Title = entity.Fiction.Title,
-            Year = entity.Fiction.Year,
-            Extension = entity.Fiction.Extension,
-            TimeAdded = entity.Fiction.TimeAdded,
-            IpfsCid = entity.Hash.IpfsCid,
-            Filesize = entity.Fiction.Filesize,
-            Pages = entity.Fiction.Pages,
-            Language = entity.Fiction.Language,
-            Publisher = entity.Fiction.Publisher,
-        };
-    }
-
-    [return: NotNullIfNotNull(nameof(entity))]
-    private static Book? MapItem(LibgenRecord? entity)
-    {
-        if (entity is null)
-            return null;
-
-        return new Book
-        {
-            Id = entity.Libgen.Id,
-            Md5 = entity.Libgen.Md5,
-            Author = entity.Libgen.Author,
-            Title = entity.Libgen.Title,
-            Year = entity.Libgen.Year,
-            Extension = entity.Libgen.Extension,
-            TimeAdded = entity.Libgen.TimeAdded,
-            IpfsCid = entity.Hash.IpfsCid,
-            Filesize = entity.Libgen.Filesize,
-            Pages = entity.Libgen.Pages,
-            Language = entity.Libgen.Language,
-            Publisher = entity.Libgen.Publisher,
-        };
     }
 }
