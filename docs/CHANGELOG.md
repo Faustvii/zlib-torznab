@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/Faustvii/zlib-torznab/compare/v1.5.5...v1.5.6) (2022-11-29)
+
+
+### Bug Fixes
+
+* tried to read book with incorrect filename ([cabf081](https://github.com/Faustvii/zlib-torznab/commit/cabf0814be3e15af888630c4e82ce1bd7b624df7))
+
 ## [1.5.5](https://github.com/Faustvii/zlib-torznab/compare/v1.5.4...v1.5.5) (2022-11-29)
 
 
