@@ -1,3 +1,10 @@
+## [1.5.8](https://github.com/Faustvii/zlib-torznab/compare/v1.5.7...v1.5.8) (2022-11-29)
+
+
+### Bug Fixes
+
+* removed q torznab capability ([1ea1c3c](https://github.com/Faustvii/zlib-torznab/commit/1ea1c3cab705133e42f425a3f921fe18f297b715))
+
 ## [1.5.7](https://github.com/Faustvii/zlib-torznab/compare/v1.5.6...v1.5.7) (2022-11-29)
 
 
