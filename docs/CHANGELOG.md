@@ -1,3 +1,10 @@
+## [1.5.5](https://github.com/Faustvii/zlib-torznab/compare/v1.5.4...v1.5.5) (2022-11-29)
+
+
+### Bug Fixes
+
+* torrent filename being invalid for readarr to import ([206ddbe](https://github.com/Faustvii/zlib-torznab/commit/206ddbec57c783a4014122562c86a053fe993d8f))
+
 ## [1.5.4](https://github.com/Faustvii/zlib-torznab/compare/v1.5.3...v1.5.4) (2022-11-29)
 
 
