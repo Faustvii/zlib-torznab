@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/Faustvii/zlib-torznab/compare/v1.5.3...v1.5.4) (2022-11-29)
+
+
+### Bug Fixes
+
+* better connetion failed log ([5bf6244](https://github.com/Faustvii/zlib-torznab/commit/5bf6244513b1a822a55c19fa5cf868b086bca27d))
+
 ## [1.5.3](https://github.com/Faustvii/zlib-torznab/compare/v1.5.2...v1.5.3) (2022-11-29)
 
 
