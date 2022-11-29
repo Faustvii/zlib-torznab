@@ -81,7 +81,9 @@ public class TorrentController : ControllerBase
                 engine.Torrents.FirstOrDefault(x => x.InfoHashes == torrent.InfoHashes)
                 ?? await engine.AddAsync(torrent, dir);
             manager.ConnectionAttemptFailed += (o, e) =>
-                Console.WriteLine($"connection failed {e.Peer.PeerId} because of {e.Reason}");
+                Console.WriteLine(
+                    $"connection failed {e.Peer.ConnectionUri} because of {e.Reason}"
+                );
             manager.PeersFound += (o, e) =>
                 Console.WriteLine(
                     $"We found {e.NewPeers} new peers {e.ExistingPeers} existing peers"
