@@ -8,6 +8,7 @@ using Zlib.Torznab.Models.Settings;
 using Zlib.Torznab.Models.Torznab;
 using Zlib.Torznab.Models.Torznab.Capabilities;
 using Zlib.Torznab.Models.Torznab.Rss;
+using Zlib.Torznab.Services.Ipfs;
 
 namespace Zlib.Torznab.Services.Torznab;
 
@@ -16,16 +17,19 @@ public class TorznabService : ITorznabService
     private readonly IBookRepository _bookRepository;
     private readonly ApplicationSettings _applicationSettings;
     private readonly IBackgroundJobPool _jobPool;
+    private readonly IIpfsGateway _ipfsGateway;
 
     public TorznabService(
         IBookRepository bookRepository,
         IOptions<ApplicationSettings> optionsAccessor,
-        IBackgroundJobPool jobPool
+        IBackgroundJobPool jobPool,
+        IIpfsGateway ipfsGateway
     )
     {
         _bookRepository = bookRepository;
         _applicationSettings = optionsAccessor.Value;
         _jobPool = jobPool;
+        _ipfsGateway = ipfsGateway;
     }
 
     public Task<TorznabCapabilitiesResponse> GetCapabilities()
@@ -86,24 +90,9 @@ public class TorznabService : ITorznabService
 
     private async ValueTask QueueIPFSDownload(Book book, CancellationToken cancellationToken)
     {
-        var ipfsClient = new IpfsClient(_applicationSettings.Ipfs.Gateway);
-        var rootDirectory = _applicationSettings.Torrent.DownloadDirectory;
-        var dir = Path.Combine(rootDirectory, book.IpfsCid);
-        var fileName = $"{book.IpfsCid}.{book.Extension}";
-
-        if (!File.Exists(Path.Combine(dir, fileName)))
-        {
-            Console.WriteLine($"Queuing download of {book.Title} {book.Author} - {book.IpfsCid}");
-            await using var fileContent = await ipfsClient.FileSystem.ReadFileAsync(
-                book.IpfsCid,
-                cancellationToken
-            );
-            Directory.CreateDirectory(dir);
-            await using var fileStream = File.Create(Path.Combine(dir, fileName));
-            await fileContent.CopyToAsync(fileStream, cancellationToken);
-            fileStream.Close();
-            Console.WriteLine($"Finished download of {book.Title} {book.Author} - {book.IpfsCid}");
-        }
+        Console.WriteLine($"Queuing download of {book.Title} {book.Author} - {book.IpfsCid}");
+        await _ipfsGateway.DownloadFileAsync(book, cancellationToken);
+        Console.WriteLine($"Finished download of {book.Title} {book.Author} - {book.IpfsCid}");
     }
 
     private Item MapItem(Book x)
