@@ -23,7 +23,10 @@ public partial class IpfsGateway : IIpfsGateway
         _applicationSettings = options.Value;
     }
 
-    public async Task<bool> DownloadFileAsync(Book book, CancellationToken cancellationToken)
+    public async Task<(bool Downloaded, string? FileName)> DownloadFileAsync(
+        Book book,
+        CancellationToken cancellationToken
+    )
     {
         try
         {
@@ -43,13 +46,13 @@ public partial class IpfsGateway : IIpfsGateway
                 await fileContent.CopyToAsync(fileStream, cancellationToken);
                 fileStream.Close();
             }
+            return (true, fileName);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            return false;
+            return (false, null);
         }
-        return true;
     }
 
     private static string RemoveInvalidFileNameChars(string input) =>

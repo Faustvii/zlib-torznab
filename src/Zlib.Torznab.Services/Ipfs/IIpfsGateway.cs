@@ -4,5 +4,8 @@ namespace Zlib.Torznab.Services.Ipfs;
 
 public interface IIpfsGateway
 {
-    Task<bool> DownloadFileAsync(Book book, CancellationToken cancellationToken);
+    Task<(bool Downloaded, string? FileName)> DownloadFileAsync(
+        Book book,
+        CancellationToken cancellationToken
+    );
 }

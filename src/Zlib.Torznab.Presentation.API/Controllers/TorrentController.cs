@@ -41,9 +41,12 @@ public class TorrentController : ControllerBase
 
         var rootDirectory = _applicationSettings.Torrent.DownloadDirectory;
         var dir = Path.Combine(rootDirectory, book.IpfsCid);
-        var fileName = $"{book.IpfsCid}.{book.Extension}";
+        var (result, fileName) = await _ipfsGateway.DownloadFileAsync(
+            book,
+            HttpContext.RequestAborted
+        );
 
-        if (!await _ipfsGateway.DownloadFileAsync(book, HttpContext.RequestAborted))
+        if (!result || fileName is null)
             return NotFound();
 
         var torrentCreator = new TorrentCreator
