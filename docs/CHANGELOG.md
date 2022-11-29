@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/Faustvii/zlib-torznab/compare/v1.5.2...v1.5.3) (2022-11-29)
+
+
+### Bug Fixes
+
+* added debugging to torrent manager ([dbbf8c9](https://github.com/Faustvii/zlib-torznab/commit/dbbf8c933c817a3520ee1aafea9c3443397853d2))
+
 ## [1.5.2](https://github.com/Faustvii/zlib-torznab/compare/v1.5.1...v1.5.2) (2022-11-29)
 
 
