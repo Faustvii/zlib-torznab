@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/Faustvii/zlib-torznab/compare/v1.5.1...v1.5.2) (2022-11-29)
+
+
+### Bug Fixes
+
+* torrent already registered error ([f119c38](https://github.com/Faustvii/zlib-torznab/commit/f119c388a88e8bd44cb3470c472756e2d8504d49))
+
 ## [1.5.1](https://github.com/Faustvii/zlib-torznab/compare/v1.5.0...v1.5.1) (2022-11-29)
 
 
