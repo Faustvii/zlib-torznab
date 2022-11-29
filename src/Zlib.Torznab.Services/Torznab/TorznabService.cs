@@ -1,5 +1,4 @@
 using System.Globalization;
-using Ipfs.Http;
 using Microsoft.Extensions.Options;
 using Zlib.Torznab.Models.Archive;
 using Zlib.Torznab.Models.Queues;

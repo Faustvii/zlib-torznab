@@ -5,8 +5,8 @@ namespace Zlib.Torznab.Models.Torznab.Capabilities;
 public class TorznabCapsSearching
 {
     [XmlElement(ElementName = "search")]
-    public TorznabCapsSearchingParams Search { get; set; } = new();
+    public TorznabCapsSearchingParams? Search { get; set; }
 
     [XmlElement(ElementName = "book-search")]
-    public TorznabCapsSearchingParams BookSearch { get; set; } = new();
+    public TorznabCapsSearchingParams? BookSearch { get; set; }
 }
