@@ -73,9 +73,18 @@ public class TorrentController : ControllerBase
         );
 
         var torrentBytes = createResult.Encode();
-        var torrent = MonoTorrent.Torrent.Load(createResult);
-        var manager = await _torrentService.GetEngine().AddAsync(torrent, dir);
-        await manager.StartAsync();
+        try
+        {
+            var torrent = MonoTorrent.Torrent.Load(createResult);
+            var manager = await _torrentService.GetEngine().AddAsync(torrent, dir);
+            await manager.StartAsync();
+        }
+        catch (TorrentException ex)
+            when (ex.Message.Contains("already been registered", StringComparison.OrdinalIgnoreCase)
+            )
+        {
+            //ignore
+        }
 
         return File(torrentBytes, "application/x-bittorrent", $"{md5}.torrent");
     }
