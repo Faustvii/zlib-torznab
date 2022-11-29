@@ -75,8 +75,23 @@ public class TorrentController : ControllerBase
         var torrentBytes = createResult.Encode();
         try
         {
+            var engine = _torrentService.GetEngine();
             var torrent = MonoTorrent.Torrent.Load(createResult);
-            var manager = await _torrentService.GetEngine().AddAsync(torrent, dir);
+            var manager =
+                engine.Torrents.FirstOrDefault(x => x.InfoHashes == torrent.InfoHashes)
+                ?? await engine.AddAsync(torrent, dir);
+            manager.ConnectionAttemptFailed += (o, e) =>
+                Console.WriteLine($"connection failed {e.Peer.PeerId} because of {e.Reason}");
+            manager.PeersFound += (o, e) =>
+                Console.WriteLine(
+                    $"We found {e.NewPeers} new peers {e.ExistingPeers} existing peers"
+                );
+            manager.TorrentStateChanged += (o, e) =>
+                Console.WriteLine($"{e.TorrentManager.Name} has new state {e.NewState}");
+            manager.PeerConnected += (o, e) =>
+                Console.WriteLine($"{e.Peer.ClientApp} connected with {e.Direction} direction");
+            manager.PeerDisconnected += (o, e) =>
+                Console.WriteLine($"{e.Peer.ClientApp} disconnected");
             await manager.StartAsync();
         }
         catch (TorrentException ex)

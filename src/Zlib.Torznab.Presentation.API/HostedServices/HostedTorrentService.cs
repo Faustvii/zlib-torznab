@@ -66,6 +66,7 @@ public class HostedTorrentService : IHostedService
                     ListenEndPoint = ipEndpoint,
                 };
                 await engine.UpdateSettingsAsync(settingsBuilder.ToSettings());
+                await engine.StartAllAsync();
             }
         }
     }
