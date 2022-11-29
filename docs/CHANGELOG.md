@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/Faustvii/zlib-torznab/compare/v1.5.0...v1.5.1) (2022-11-29)
+
+
+### Bug Fixes
+
+* added support for cloudfare ipfs gateway ([5982108](https://github.com/Faustvii/zlib-torznab/commit/59821084ccf13e25516bd63e5c46e054fc1b5adb))
+
 # [1.5.0](https://github.com/Faustvii/zlib-torznab/compare/v1.4.1...v1.5.0) (2022-11-28)
 
 
