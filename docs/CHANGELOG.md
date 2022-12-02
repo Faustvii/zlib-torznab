@@ -1,3 +1,13 @@
+# [2.0.0](https://github.com/Faustvii/zlib-torznab/compare/v1.5.8...v2.0.0) (2022-12-02)
+
+
+* feat!: auto update of libgen data ([3d2b0e1](https://github.com/Faustvii/zlib-torznab/commit/3d2b0e126a85f23873b818eb1137d7e5383817f1))
+
+
+### BREAKING CHANGES
+
+* Requires new metadata config setting
+
 ## [1.5.8](https://github.com/Faustvii/zlib-torznab/compare/v1.5.7...v1.5.8) (2022-11-29)
 
 
