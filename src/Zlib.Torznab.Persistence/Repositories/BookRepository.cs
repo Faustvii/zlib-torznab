@@ -28,18 +28,32 @@ public class BookRepository : IBookRepository
     {
         var fictionQuery = ApplyFiltering(GetFictionQuery(), request);
         var libgenQuery = ApplyFiltering(GetLibgenQuery(), request);
+        var zlibQuery = ApplyFiltering(GetZlibQuery(), request);
 
-        return await fictionQuery
-            .OrderByDescending(x => x.Id)
-            .Take(request.Limit)
-            .Skip(request.Offset)
-            .Concat(
-                libgenQuery.OrderByDescending(x => x.Id).Skip(request.Offset).Take(request.Limit)
-            )
-            .OrderByDescending(x => x.TimeAdded)
-            .Skip(request.Offset)
-            .Take(request.Limit)
-            .ToListAsync();
+        try
+        {
+            return await fictionQuery
+                .OrderByDescending(x => x.Id)
+                .Take(request.Limit)
+                .Skip(request.Offset)
+                .Concat(
+                    libgenQuery
+                        .OrderByDescending(x => x.Id)
+                        .Skip(request.Offset)
+                        .Take(request.Limit)
+                )
+                .Concat(
+                    zlibQuery.OrderByDescending(x => x.Id).Skip(request.Offset).Take(request.Limit)
+                )
+                .OrderByDescending(x => x.TimeAdded)
+                .Skip(request.Offset)
+                .Take(request.Limit)
+                .ToListAsync();
+        }
+        catch (System.Exception)
+        {
+            throw;
+        }
     }
 
     private static IQueryable<Book> ApplyFiltering(IQueryable<Book> query, TorznabRequest request)
@@ -49,7 +63,7 @@ public class BookRepository : IBookRepository
                 x.IpfsCid != ""
 #pragma warning disable MA0002 // Does not work with LINQ to entities
                 && AllowedExtensions.Contains(x.Extension)
-                && (x.Language == "" || x.Language == "English")
+                && (x.Language == "" || x.Language == "English" || x.Language == "other")
 #pragma warning restore MA0002
         );
         if (!string.IsNullOrWhiteSpace(request.Query))
@@ -167,5 +181,30 @@ public class BookRepository : IBookRepository
                     }
             );
         return fictionQuery;
+    }
+
+    private IQueryable<Book> GetZlibQuery()
+    {
+        var query = _context.ZlibBooks.Select(
+            x =>
+                new Book
+                {
+                    Id = x.Id,
+                    Md5 = x.Md5 ?? x.Md5Reported,
+                    Author = x.Author,
+                    Title = x.Title,
+                    Year = x.Year,
+                    Extension = x.Extension,
+                    TimeAdded = x.Modified,
+                    IpfsCid = x.Ipfs.IpfsCid,
+                    Filesize = x.FileSize ?? x.FileSizeReported,
+                    Pages = x.Pages,
+                    Language = x.Language,
+                    Publisher = x.Publisher,
+                    Locator = x.Md5 ?? x.Md5Reported,
+                    Identifier = string.Empty,
+                }
+        );
+        return query;
     }
 }

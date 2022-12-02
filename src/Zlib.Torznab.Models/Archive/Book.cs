@@ -18,5 +18,8 @@ public record Book
     public string Identifier { get; init; } = string.Empty;
 
     public string FormattedTitle =>
-        $"{Author} - {Title} - {Year} - ({Publisher})({Identifier}).{Extension}";
+        $"{Author} - {Title} - {Year}"
+        + $"{(string.IsNullOrWhiteSpace(Publisher) && string.IsNullOrWhiteSpace(Identifier) ? string.Empty : " - ")}"
+        + $"{(string.IsNullOrWhiteSpace(Publisher) ? string.Empty : $"({Publisher})")}"
+        + $"{(string.IsNullOrWhiteSpace(Identifier) ? string.Empty : $"({Identifier})")}.{Extension}";
 }

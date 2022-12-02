@@ -14,6 +14,8 @@ public partial class ArchiveContext : DbContext
     public DbSet<Libgen> Libgen => Set<Libgen>();
     public DbSet<LibgenHash> LibgenHashes => Set<LibgenHash>();
     public DbSet<Metadata> Metadata => Set<Metadata>();
+    public DbSet<ZlibBook> ZlibBooks => Set<ZlibBook>();
+    public DbSet<ZlibIpfs> ZlibIpfs => Set<ZlibIpfs>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,10 +24,24 @@ public partial class ArchiveContext : DbContext
         BuildMetaModel(modelBuilder);
         BuildFictionModel(modelBuilder);
         BuildLibgenModel(modelBuilder);
+        BuildZlibModel(modelBuilder);
 
         OnModelCreatingPartial(modelBuilder);
     }
 #pragma warning disable MA0051
+
+    private static void BuildZlibModel(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ZlibBook>(entity =>
+        {
+            entity.ToTable("books");
+        });
+
+        modelBuilder.Entity<ZlibIpfs>(entity =>
+        {
+            entity.ToTable("zlib_ipfs");
+        });
+    }
 
     private static void BuildMetaModel(ModelBuilder modelBuilder)
     {
@@ -43,51 +59,10 @@ public partial class ArchiveContext : DbContext
             entity.ToTable("fiction").UseCollation("utf8mb4_unicode_ci");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity
-                .Property(e => e.Asin)
-                .HasMaxLength(10)
-                .HasDefaultValueSql("''")
-                .HasColumnName("ASIN");
-            entity.Property(e => e.Author).HasMaxLength(300).HasDefaultValueSql("''");
-            entity.Property(e => e.Commentary).HasMaxLength(500);
-            entity.Property(e => e.Coverurl).HasMaxLength(200).HasDefaultValueSql("''");
-            entity.Property(e => e.Edition).HasMaxLength(50).HasDefaultValueSql("''");
-            entity.Property(e => e.Extension).HasMaxLength(10);
+            entity.Property(e => e.Asin).HasColumnName("ASIN");
 
-            entity
-                .Property(e => e.GooglebookId)
-                .HasMaxLength(45)
-                .HasDefaultValueSql("''")
-                .HasColumnName("GooglebookID");
-            entity.Property(e => e.Identifier).HasMaxLength(400).HasDefaultValueSql("''");
-            entity.Property(e => e.Language).HasMaxLength(45).HasDefaultValueSql("''");
-            entity.Property(e => e.Library).HasMaxLength(50).HasDefaultValueSql("''");
-            entity.Property(e => e.Locator).HasMaxLength(512).HasDefaultValueSql("''");
-            entity
-                .Property(e => e.Md5)
-                .HasMaxLength(32)
-                .IsFixedLength()
-                .HasColumnName("MD5")
-                .UseCollation("ascii_general_ci")
-                .HasCharSet("ascii");
-            entity.Property(e => e.Pages).HasMaxLength(10).HasDefaultValueSql("''");
-            entity.Property(e => e.Publisher).HasMaxLength(100).HasDefaultValueSql("''");
-            entity.Property(e => e.Series).HasMaxLength(300).HasDefaultValueSql("''");
-            entity
-                .Property(e => e.TimeAdded)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp");
-            entity
-                .Property(e => e.TimeLastModified)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasColumnType("timestamp");
-            entity.Property(e => e.Title).HasMaxLength(2000).HasDefaultValueSql("''");
-            entity
-                .Property(e => e.Visible)
-                .HasMaxLength(3)
-                .HasDefaultValueSql("''")
-                .IsFixedLength();
-            entity.Property(e => e.Year).HasMaxLength(10).HasDefaultValueSql("''");
+            entity.Property(e => e.GooglebookId).HasColumnName("GooglebookID");
+            entity.Property(e => e.Md5).HasColumnName("MD5");
         });
 
         modelBuilder.Entity<FictionHash>(entity =>
@@ -96,13 +71,8 @@ public partial class ArchiveContext : DbContext
 
             entity.ToTable("fiction_hashes").HasCharSet("ascii").UseCollation("ascii_general_ci");
 
-            entity.Property(e => e.Md5).HasMaxLength(32).IsFixedLength().HasColumnName("md5");
-            entity
-                .Property(e => e.IpfsCid)
-                .HasMaxLength(62)
-                .HasDefaultValueSql("''")
-                .IsFixedLength()
-                .HasColumnName("ipfs_cid");
+            entity.Property(e => e.Md5).HasColumnName("md5");
+            entity.Property(e => e.IpfsCid).HasColumnName("ipfs_cid");
         });
     }
 
@@ -114,53 +84,9 @@ public partial class ArchiveContext : DbContext
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Title).HasMaxLength(2000).HasDefaultValueSql("''");
-            entity.Property(e => e.Author).HasMaxLength(300).HasDefaultValueSql("''");
-            entity.Property(e => e.Year).HasMaxLength(10).HasDefaultValueSql("''");
-            entity.Property(e => e.Edition).HasMaxLength(50).HasDefaultValueSql("''");
-            entity.Property(e => e.Publisher).HasMaxLength(100).HasDefaultValueSql("''");
-            entity.Property(e => e.Pages).HasMaxLength(10).HasDefaultValueSql("''");
-            entity.Property(e => e.Language).HasMaxLength(45).HasDefaultValueSql("''");
-            entity.Property(e => e.Library).HasMaxLength(50).HasDefaultValueSql("''");
-
-            entity.Property(e => e.Identifier).HasMaxLength(400).HasDefaultValueSql("''");
-            entity
-                .Property(e => e.Asin)
-                .HasMaxLength(10)
-                .HasDefaultValueSql("''")
-                .HasColumnName("ASIN");
-            entity
-                .Property(e => e.GooglebookId)
-                .HasMaxLength(45)
-                .HasDefaultValueSql("''")
-                .HasColumnName("GooglebookID");
-
-            entity.Property(e => e.Commentary).HasMaxLength(500);
-            entity.Property(e => e.Coverurl).HasMaxLength(200).HasDefaultValueSql("''");
-            entity.Property(e => e.Extension).HasMaxLength(10);
-
-            entity.Property(e => e.Locator).HasMaxLength(512).HasDefaultValueSql("''");
-            entity
-                .Property(e => e.Md5)
-                .HasMaxLength(32)
-                .IsFixedLength()
-                .HasColumnName("MD5")
-                .UseCollation("ascii_general_ci")
-                .HasCharSet("ascii");
-            entity.Property(e => e.Series).HasMaxLength(300).HasDefaultValueSql("''");
-            entity
-                .Property(e => e.TimeAdded)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp");
-            entity
-                .Property(e => e.TimeLastModified)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasColumnType("timestamp");
-            entity
-                .Property(e => e.Visible)
-                .HasMaxLength(3)
-                .HasDefaultValueSql("''")
-                .IsFixedLength();
+            entity.Property(e => e.Asin).HasColumnName("ASIN");
+            entity.Property(e => e.GooglebookId).HasColumnName("GooglebookID");
+            entity.Property(e => e.Md5).HasColumnName("MD5");
         });
 
         modelBuilder.Entity<LibgenHash>(entity =>
@@ -169,13 +95,8 @@ public partial class ArchiveContext : DbContext
 
             entity.ToTable("hashes").HasCharSet("utf8mb3").UseCollation("utf8mb3_general_ci");
 
-            entity.Property(e => e.Md5).HasMaxLength(32).IsFixedLength().HasColumnName("md5");
-            entity
-                .Property(e => e.IpfsCid)
-                .HasMaxLength(62)
-                .HasDefaultValueSql("''")
-                .IsFixedLength()
-                .HasColumnName("ipfs_cid");
+            entity.Property(e => e.Md5).HasColumnName("md5");
+            entity.Property(e => e.IpfsCid).HasColumnName("ipfs_cid");
         });
     }
 
