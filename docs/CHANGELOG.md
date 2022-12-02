@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/Faustvii/zlib-torznab/compare/v2.1.0...v2.1.1) (2022-12-02)
+
+
+### Bug Fixes
+
+* check if file exists after downloading the file from ipfs ([4efb158](https://github.com/Faustvii/zlib-torznab/commit/4efb158ee127b640b2112d92afc078c87cb143ba))
+
 # [2.1.0](https://github.com/Faustvii/zlib-torznab/compare/v2.0.0...v2.1.0) (2022-12-02)
 
 
