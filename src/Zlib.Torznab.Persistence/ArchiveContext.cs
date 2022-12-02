@@ -13,17 +13,27 @@ public partial class ArchiveContext : DbContext
     public DbSet<FictionHash> FictionHashes => Set<FictionHash>();
     public DbSet<Libgen> Libgen => Set<Libgen>();
     public DbSet<LibgenHash> LibgenHashes => Set<LibgenHash>();
+    public DbSet<Metadata> Metadata => Set<Metadata>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("utf8mb4_0900_ai_ci").HasCharSet("utf8mb4");
 
+        BuildMetaModel(modelBuilder);
         BuildFictionModel(modelBuilder);
         BuildLibgenModel(modelBuilder);
 
         OnModelCreatingPartial(modelBuilder);
     }
 #pragma warning disable MA0051
+
+    private static void BuildMetaModel(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Metadata>(entity =>
+        {
+            entity.ToTable("metadata");
+        });
+    }
 
     private static void BuildFictionModel(ModelBuilder modelBuilder)
     {

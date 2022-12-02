@@ -17,18 +17,21 @@ public class TorznabService : ITorznabService
     private readonly ApplicationSettings _applicationSettings;
     private readonly IBackgroundJobPool _jobPool;
     private readonly IIpfsGateway _ipfsGateway;
+    private readonly IMetadataRepository _metadataRepository;
 
     public TorznabService(
         IBookRepository bookRepository,
         IOptions<ApplicationSettings> optionsAccessor,
         IBackgroundJobPool jobPool,
-        IIpfsGateway ipfsGateway
+        IIpfsGateway ipfsGateway,
+        IMetadataRepository metadataRepository
     )
     {
         _bookRepository = bookRepository;
         _applicationSettings = optionsAccessor.Value;
         _jobPool = jobPool;
         _ipfsGateway = ipfsGateway;
+        _metadataRepository = metadataRepository;
     }
 
     public Task<TorznabCapabilitiesResponse> GetCapabilities()
@@ -64,13 +67,14 @@ public class TorznabService : ITorznabService
 
     public async Task<TorznabRss> GetFeed(TorznabRequest request)
     {
+        var metadata = await _metadataRepository.GetMetadata();
         var items = await _bookRepository.GetBooksFromTorznabQuery(request);
 
         var result = new TorznabRss
         {
             Channel = new Channel
             {
-                LastBuildDate = DateTime.Today,
+                LastBuildDate = metadata.LatestUpdate,
                 Response = new Response { Offset = request.Offset, },
                 Item = items.Select(MapItem).ToList(),
             },

@@ -7,4 +7,5 @@ public class ApplicationSettings
     public IpfsSettings Ipfs { get; set; } = new();
     public TorrentSettings Torrent { get; set; } = new();
     public TorznabSettings Torznab { get; set; } = new();
+    public MetadataSettings Metadata { get; set; } = new();
 }

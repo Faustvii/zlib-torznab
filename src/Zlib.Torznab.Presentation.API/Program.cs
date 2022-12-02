@@ -13,6 +13,7 @@ using Zlib.Torznab.Presentation.API;
 using Zlib.Torznab.Presentation.API.HostedServices;
 using Zlib.Torznab.Presentation.API.Services;
 using Zlib.Torznab.Services.Ipfs;
+using Zlib.Torznab.Services.Metadata;
 using Zlib.Torznab.Services.Torrents;
 using Zlib.Torznab.Services.Torznab;
 
@@ -50,6 +51,7 @@ builder.Services.AddSingleton<IBackgroundJobPool>(new DefaultBackgroundJobPool(3
 builder.Services.AddHostedService<HostedTorrentService>();
 builder.Services.AddHostedService<HostedTrackerService>();
 builder.Services.AddHostedService<HostedBackgroundJobPoolService>();
+builder.Services.AddHostedService<HostedDatabaseUpdater>();
 
 builder.Services.AddSingleton<ITrackerListener, APITrackerListener>();
 builder.Services.AddSingleton<APITrackerListener>();
@@ -58,8 +60,10 @@ builder.Services.AddSingleton<ITorrentService, TorrentService>();
 builder.Services.AddHttpClient<IIpfsGateway, IpfsGateway>();
 
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IMetadataRepository, MetadataRepository>();
 
 builder.Services.AddScoped<ITorznabService, TorznabService>();
+builder.Services.AddScoped<IMetadataService, MetadataService>();
 
 builder.Services.Configure<ApplicationSettings>(
     builder.Configuration.GetSection(ApplicationSettings.Key)
@@ -70,6 +74,9 @@ builder.Services.Configure<IpfsSettings>(builder.Configuration.GetSection(IpfsSe
 builder.Services.Configure<TorrentSettings>(builder.Configuration.GetSection(TorrentSettings.Key));
 
 builder.Services.Configure<TorznabSettings>(builder.Configuration.GetSection(TorznabSettings.Key));
+builder.Services.Configure<MetadataSettings>(
+    builder.Configuration.GetSection(MetadataSettings.Key)
+);
 
 var connectionString = builder.Configuration.GetConnectionString("Archive");
 var serverVersion = ServerVersion.AutoDetect(connectionString);
