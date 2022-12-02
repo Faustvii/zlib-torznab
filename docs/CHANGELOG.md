@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/Faustvii/zlib-torznab/compare/v2.0.0...v2.1.0) (2022-12-02)
+
+
+### Features
+
+* added zlibrary data querying ([02679d9](https://github.com/Faustvii/zlib-torznab/commit/02679d9a5f089a29f9afb128ce3a04a7a71c220f))
+
 # [2.0.0](https://github.com/Faustvii/zlib-torznab/compare/v1.5.8...v2.0.0) (2022-12-02)
 
 
