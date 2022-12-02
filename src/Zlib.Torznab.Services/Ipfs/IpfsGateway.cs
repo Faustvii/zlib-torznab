@@ -42,6 +42,10 @@ public partial class IpfsGateway : IIpfsGateway
                     cancellationToken
                 );
                 Directory.CreateDirectory(dir);
+
+                if (File.Exists(Path.Combine(dir, fileName)))
+                    return (true, fileName);
+
                 await using var fileStream = File.Create(Path.Combine(dir, fileName));
                 await fileContent.CopyToAsync(fileStream, cancellationToken);
                 fileStream.Close();
