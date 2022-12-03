@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/Faustvii/zlib-torznab/compare/v2.1.2...v2.1.3) (2022-12-03)
+
+
+### Bug Fixes
+
+* fixed query timeout because querying on a coalesced column ([399857a](https://github.com/Faustvii/zlib-torznab/commit/399857a738f843302a9672d51ee397818989351a))
+
 ## [2.1.2](https://github.com/Faustvii/zlib-torznab/compare/v2.1.1...v2.1.2) (2022-12-03)
 
 
