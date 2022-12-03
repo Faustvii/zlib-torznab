@@ -20,6 +20,7 @@ public class BookRepository : IBookRepository
     {
         var book = await GetFictionQuery()
             .Concat(GetLibgenQuery())
+            .Concat(GetZlibQuery())
             .FirstOrDefaultAsync(x => x.Md5 == ipfs);
         return book;
     }
