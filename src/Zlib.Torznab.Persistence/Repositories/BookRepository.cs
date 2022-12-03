@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Zlib.Torznab.Models.Archive;
 using Zlib.Torznab.Models.Repositories;
@@ -16,12 +17,12 @@ public class BookRepository : IBookRepository
         _context = archiveContext;
     }
 
-    public async Task<Book?> GetBookFromMd5(string ipfs)
+    public async Task<Book?> GetBookFromMd5(string md5)
     {
         var book = await GetFictionQuery()
             .Concat(GetLibgenQuery())
-            .Concat(GetZlibQuery())
-            .FirstOrDefaultAsync(x => x.Md5 == ipfs);
+            .Concat(GetZlibQuery(x => x.Md5 == md5 || x.Md5Reported == md5))
+            .FirstOrDefaultAsync(x => x.Md5 == md5);
         return book;
     }
 
@@ -184,9 +185,13 @@ public class BookRepository : IBookRepository
         return fictionQuery;
     }
 
-    private IQueryable<Book> GetZlibQuery()
+    private IQueryable<Book> GetZlibQuery(Expression<Func<ZlibBook, bool>>? predicate = null)
     {
-        var query = _context.ZlibBooks.Select(
+        var query = _context.ZlibBooks.AsQueryable();
+        if (predicate != null)
+            query = query.Where(predicate);
+
+        return query.Select(
             x =>
                 new Book
                 {
@@ -206,6 +211,5 @@ public class BookRepository : IBookRepository
                     Identifier = string.Empty,
                 }
         );
-        return query;
     }
 }
