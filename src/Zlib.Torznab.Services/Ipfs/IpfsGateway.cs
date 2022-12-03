@@ -36,18 +36,13 @@ public partial class IpfsGateway : IIpfsGateway
         {
             if (!File.Exists(fullPath))
             {
-                await using var fileContent = await _httpClient.GetStreamAsync(
-                    $"{_applicationSettings.Ipfs.Gateway}{book.IpfsCid}?filename=book.{book.Extension}",
-                    cancellationToken
-                );
-                Directory.CreateDirectory(dir);
+                return await DownloadFromIpfs(book, dir, fullPath, fileName, cancellationToken);
+            }
 
-                if (File.Exists(fullPath))
-                    return (true, fileName);
-
-                await using var fileStream = File.Create(fullPath);
-                await fileContent.CopyToAsync(fileStream, cancellationToken);
-                fileStream.Close();
+            var attr = new FileInfo(fullPath);
+            if (attr.Length != book.Filesize)
+            {
+                return await DownloadFromIpfs(book, dir, fullPath, fileName, cancellationToken);
             }
             return (true, fileName);
         }
@@ -63,6 +58,29 @@ public partial class IpfsGateway : IIpfsGateway
             Console.WriteLine(e);
             return (false, null);
         }
+    }
+
+    private async Task<(bool Downloaded, string? FileName)> DownloadFromIpfs(
+        Book book,
+        string dir,
+        string fullPath,
+        string fileName,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var fileContent = await _httpClient.GetStreamAsync(
+            $"{_applicationSettings.Ipfs.Gateway}{book.IpfsCid}?filename=book.{book.Extension}",
+            cancellationToken
+        );
+        Directory.CreateDirectory(dir);
+
+        if (File.Exists(fullPath) && new FileInfo(fullPath).Length == book.Filesize)
+            return (true, fileName);
+
+        await using var fileStream = File.Create(fullPath);
+        await fileContent.CopyToAsync(fileStream, cancellationToken);
+        fileStream.Close();
+        return (true, fileName);
     }
 
     private static string RemoveInvalidFileNameChars(string input) =>
