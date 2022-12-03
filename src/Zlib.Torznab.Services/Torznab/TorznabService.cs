@@ -103,7 +103,7 @@ public class TorznabService : ITorznabService
         return new Item
         {
             Title = x.FormattedTitle,
-            TorznabGuid = new TorznabGuid { IsPermaLink = false, Text = x.Md5, },
+            TorznabGuid = new TorznabGuid { IsPermaLink = false, Text = x.IpfsCid, },
             PubDate = x.TimeAdded.ToString("r", CultureInfo.InvariantCulture),
             Source = new Source { Url = $"{_applicationSettings.Torznab.SourceUrlBase}{x.Md5}" },
             Attr = new List<Attr>
