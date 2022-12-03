@@ -1,3 +1,10 @@
+## [2.1.6](https://github.com/Faustvii/zlib-torznab/compare/v2.1.5...v2.1.6) (2022-12-03)
+
+
+### Bug Fixes
+
+* the stored md5 is unreliable, switch to ipfs cid for torznab guid ([dc64559](https://github.com/Faustvii/zlib-torznab/commit/dc645596ae766a4c3442eda6449521efe7bd4b0c))
+
 ## [2.1.5](https://github.com/Faustvii/zlib-torznab/compare/v2.1.4...v2.1.5) (2022-12-03)
 
 
