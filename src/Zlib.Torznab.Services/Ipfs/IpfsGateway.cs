@@ -25,17 +25,16 @@ public partial class IpfsGateway : IIpfsGateway
 
     public async Task<(bool Downloaded, string? FileName)> DownloadFileAsync(
         Book book,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     )
     {
+        var rootDirectory = _applicationSettings.Torrent.DownloadDirectory;
+        var dir = Path.Combine(rootDirectory, book.IpfsCid);
+        var fileName = RemoveInvalidFileNameChars(book.FormattedTitle);
+        var fullPath = Path.Combine(dir, fileName);
         try
         {
-            var rootDirectory = _applicationSettings.Torrent.DownloadDirectory;
-            var dir = Path.Combine(rootDirectory, book.IpfsCid);
-            var invalid = Path.GetInvalidFileNameChars();
-            var fileName = RemoveInvalidFileNameChars(book.FormattedTitle);
-
-            if (!File.Exists(Path.Combine(dir, fileName)))
+            if (!File.Exists(fullPath))
             {
                 await using var fileContent = await _httpClient.GetStreamAsync(
                     $"{_applicationSettings.Ipfs.Gateway}{book.IpfsCid}?filename=book.{book.Extension}",
@@ -43,14 +42,21 @@ public partial class IpfsGateway : IIpfsGateway
                 );
                 Directory.CreateDirectory(dir);
 
-                if (File.Exists(Path.Combine(dir, fileName)))
+                if (File.Exists(fullPath))
                     return (true, fileName);
 
-                await using var fileStream = File.Create(Path.Combine(dir, fileName));
+                await using var fileStream = File.Create(fullPath);
                 await fileContent.CopyToAsync(fileStream, cancellationToken);
                 fileStream.Close();
             }
             return (true, fileName);
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Download of IPFS was cancelled removing file that was created");
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
+            return (false, null);
         }
         catch (Exception e)
         {

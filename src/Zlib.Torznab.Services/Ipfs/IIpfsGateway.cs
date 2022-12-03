@@ -6,6 +6,6 @@ public interface IIpfsGateway
 {
     Task<(bool Downloaded, string? FileName)> DownloadFileAsync(
         Book book,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     );
 }
