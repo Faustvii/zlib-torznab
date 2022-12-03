@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/Faustvii/zlib-torznab/compare/v2.1.1...v2.1.2) (2022-12-03)
+
+
+### Bug Fixes
+
+* added missing lookup when trying to download torrent for zlibrary book ([9a4776f](https://github.com/Faustvii/zlib-torznab/commit/9a4776f68044bbc082b0c3ada9fb88ba3a7febee))
+
 ## [2.1.1](https://github.com/Faustvii/zlib-torznab/compare/v2.1.0...v2.1.1) (2022-12-02)
 
 
