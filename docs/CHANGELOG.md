@@ -1,3 +1,10 @@
+## [2.1.5](https://github.com/Faustvii/zlib-torznab/compare/v2.1.4...v2.1.5) (2022-12-03)
+
+
+### Bug Fixes
+
+* validate expected filesize with actual filesize ([8d6ed6d](https://github.com/Faustvii/zlib-torznab/commit/8d6ed6d58172a015e9fd8fd1d6fbebfdbbc5a1a2))
+
 ## [2.1.4](https://github.com/Faustvii/zlib-torznab/compare/v2.1.3...v2.1.4) (2022-12-03)
 
 
