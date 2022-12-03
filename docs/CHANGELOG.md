@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/Faustvii/zlib-torznab/compare/v2.1.3...v2.1.4) (2022-12-03)
+
+
+### Bug Fixes
+
+* leaving partially downloaded files when cancellation requested ([245ee88](https://github.com/Faustvii/zlib-torznab/commit/245ee88b7557ca4ea8bc3bae1521808adb0b4bfd))
+
 ## [2.1.3](https://github.com/Faustvii/zlib-torznab/compare/v2.1.2...v2.1.3) (2022-12-03)
 
 
