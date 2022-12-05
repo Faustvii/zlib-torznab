@@ -1,3 +1,10 @@
+## [2.1.9](https://github.com/Faustvii/zlib-torznab/compare/v2.1.8...v2.1.9) (2022-12-05)
+
+
+### Bug Fixes
+
+* fixed rss feed not really working as readarr would expect ([53caa17](https://github.com/Faustvii/zlib-torznab/commit/53caa176b43b79c74c19997d41170a01a9816808))
+
 ## [2.1.8](https://github.com/Faustvii/zlib-torznab/compare/v2.1.7...v2.1.8) (2022-12-05)
 
 
