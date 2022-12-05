@@ -1,3 +1,10 @@
+## [2.1.7](https://github.com/Faustvii/zlib-torznab/compare/v2.1.6...v2.1.7) (2022-12-05)
+
+
+### Bug Fixes
+
+* tables being locked while importing data ([27b470a](https://github.com/Faustvii/zlib-torznab/commit/27b470a5fdbe58ab0512deb3c0aea3475b66e500))
+
 ## [2.1.6](https://github.com/Faustvii/zlib-torznab/compare/v2.1.5...v2.1.6) (2022-12-03)
 
 
