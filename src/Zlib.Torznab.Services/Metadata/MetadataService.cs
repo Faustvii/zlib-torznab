@@ -79,8 +79,8 @@ public partial class MetadataService : IMetadataService
         var sql = type switch
         {
             "fiction"
-                => "CREATE INDEX TimeAdded_TimeLastModified "
-                    + "ON fiction(TimeAdded, TimeLastModified); "
+                => "CREATE INDEX TimeLastModified_TimeAdded "
+                    + "ON fiction(TimeLastModified, TimeAdded); "
                     + "RENAME TABLE IF EXISTS libgenrs_fiction TO libgenrs_fiction_old; "
                     + "RENAME TABLE IF EXISTS fiction TO libgenrs_fiction; "
                     + "RENAME TABLE IF EXISTS libgenrs_fiction_hashes TO libgenrs_fiction_hashes_old; "
@@ -88,8 +88,8 @@ public partial class MetadataService : IMetadataService
                     + "DROP TABLE IF EXISTS libgenrs_fiction_old; "
                     + "DROP TABLE IF EXISTS libgenrs_fiction_hashes_old; ",
             "libgen"
-                => "CREATE INDEX TimeAdded_TimeLastModified "
-                    + "ON updated(TimeAdded, TimeLastModified); "
+                => "CREATE INDEX TimeLastModified_TimeAdded "
+                    + "ON updated(TimeLastModified, TimeAdded); "
                     + "RENAME TABLE IF EXISTS libgenrs_updated TO libgenrs_updated_old; "
                     + "RENAME TABLE IF EXISTS updated TO libgenrs_updated; "
                     + "RENAME TABLE IF EXISTS libgenrs_hashes TO libgenrs_hashes_old; "
