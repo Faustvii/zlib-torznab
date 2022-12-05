@@ -56,6 +56,7 @@ public partial class MetadataService : IMetadataService
             var sqlFileName = await GetDumpData(fiction, cleanSqlName, cancellationToken);
             CleanFiction(sqlFileName, cleanSqlName);
             await ImportSqlFileToDatabase(cleanSqlName, cancellationToken);
+            await PostProcess("fiction", cancellationToken);
             metadata.LatestUpdate = metadata.LastFictionImport = DateTime.UtcNow;
             await _metadataRepository.UpdateMetadata(metadata);
         }
@@ -67,9 +68,39 @@ public partial class MetadataService : IMetadataService
             var sqlFileName = await GetDumpData(libgen, cleanSqlName, cancellationToken);
             CleanLibgen(sqlFileName, cleanSqlName);
             await ImportSqlFileToDatabase(cleanSqlName, cancellationToken);
+            await PostProcess("libgen", cancellationToken);
             metadata.LatestUpdate = metadata.LastLibgenImport = DateTime.UtcNow;
             await _metadataRepository.UpdateMetadata(metadata);
         }
+    }
+
+    private async Task PostProcess(string type, CancellationToken cancellationToken)
+    {
+        var sql = type switch
+        {
+            "fiction"
+                => "CREATE INDEX TimeAdded_TimeLastModified "
+                    + "ON fiction(TimeAdded, TimeLastModified); "
+                    + "RENAME TABLE IF EXISTS libgenrs_fiction TO libgenrs_fiction_old; "
+                    + "RENAME TABLE IF EXISTS fiction TO libgenrs_fiction; "
+                    + "RENAME TABLE IF EXISTS libgenrs_fiction_hashes TO libgenrs_fiction_hashes_old; "
+                    + "RENAME TABLE IF EXISTS fiction_hashes TO libgenrs_fiction_hashes; "
+                    + "DROP TABLE IF EXISTS libgenrs_fiction_old; "
+                    + "DROP TABLE IF EXISTS libgenrs_fiction_hashes_old; ",
+            "libgen"
+                => "CREATE INDEX TimeAdded_TimeLastModified "
+                    + "ON updated(TimeAdded, TimeLastModified); "
+                    + "RENAME TABLE IF EXISTS libgenrs_updated TO libgenrs_updated_old; "
+                    + "RENAME TABLE IF EXISTS updated TO libgenrs_updated; "
+                    + "RENAME TABLE IF EXISTS libgenrs_hashes TO libgenrs_hashes_old; "
+                    + "RENAME TABLE IF EXISTS hashes TO libgenrs_hashes; "
+                    + "DROP TABLE IF EXISTS libgenrs_updated_old; "
+                    + "DROP TABLE IF EXISTS libgenrs_hashes_old; ",
+            _ => ""
+        };
+        var filePath = Path.Combine(_metadataSettings.WorkingDirectory, "temp.sql");
+        await File.WriteAllTextAsync(filePath, sql, cancellationToken);
+        await ImportSqlFileToDatabase(filePath, cancellationToken);
     }
 
     private async Task<string> GetDumpData(

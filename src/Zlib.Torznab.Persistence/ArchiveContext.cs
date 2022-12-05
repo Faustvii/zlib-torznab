@@ -56,7 +56,7 @@ public partial class ArchiveContext : DbContext
         modelBuilder.Entity<Fiction>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
-            entity.ToTable("fiction").UseCollation("utf8mb4_unicode_ci");
+            entity.ToTable("libgenrs_fiction").UseCollation("utf8mb4_unicode_ci");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.Asin).HasColumnName("ASIN");
@@ -69,7 +69,10 @@ public partial class ArchiveContext : DbContext
         {
             entity.HasKey(e => e.Md5).HasName("PRIMARY");
 
-            entity.ToTable("fiction_hashes").HasCharSet("ascii").UseCollation("ascii_general_ci");
+            entity
+                .ToTable("libgenrs_fiction_hashes")
+                .HasCharSet("ascii")
+                .UseCollation("ascii_general_ci");
 
             entity.Property(e => e.Md5).HasColumnName("md5");
             entity.Property(e => e.IpfsCid).HasColumnName("ipfs_cid");
@@ -80,7 +83,7 @@ public partial class ArchiveContext : DbContext
     {
         modelBuilder.Entity<Libgen>(entity =>
         {
-            entity.ToTable("updated").UseCollation("utf8mb3_general_ci");
+            entity.ToTable("libgenrs_updated").UseCollation("utf8mb3_general_ci");
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.Property(e => e.Id).HasColumnName("ID");
@@ -93,7 +96,10 @@ public partial class ArchiveContext : DbContext
         {
             entity.HasKey(e => e.Md5).HasName("PRIMARY");
 
-            entity.ToTable("hashes").HasCharSet("utf8mb3").UseCollation("utf8mb3_general_ci");
+            entity
+                .ToTable("libgenrs_hashes")
+                .HasCharSet("utf8mb3")
+                .UseCollation("utf8mb3_general_ci");
 
             entity.Property(e => e.Md5).HasColumnName("md5");
             entity.Property(e => e.IpfsCid).HasColumnName("ipfs_cid");
