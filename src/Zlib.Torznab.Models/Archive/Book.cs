@@ -9,6 +9,7 @@ public record Book
     public string Year { get; init; } = string.Empty;
     public string Extension { get; init; } = string.Empty;
     public DateTime TimeAdded { get; init; }
+    public DateTime? TimeModified { get; init; }
     public string IpfsCid { get; init; } = string.Empty;
     public uint Filesize { get; init; }
     public string Pages { get; init; } = string.Empty;
@@ -17,6 +18,7 @@ public record Book
     public string Locator { get; init; } = string.Empty;
     public string Identifier { get; init; } = string.Empty;
 
+    public DateTime LatestChange => TimeModified ?? TimeAdded;
     public string FormattedTitle =>
         $"{Author} - {Title} - {Year}"
         + $"{(string.IsNullOrWhiteSpace(Publisher) && string.IsNullOrWhiteSpace(Identifier) ? string.Empty : " - ")}"

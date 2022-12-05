@@ -8,6 +8,7 @@ using Zlib.Torznab.Models.Torznab;
 using Zlib.Torznab.Models.Torznab.Capabilities;
 using Zlib.Torznab.Models.Torznab.Rss;
 using Zlib.Torznab.Services.Ipfs;
+using Zlib.Torznab.Services.Rss;
 
 namespace Zlib.Torznab.Services.Torznab;
 
@@ -18,13 +19,15 @@ public class TorznabService : ITorznabService
     private readonly IBackgroundJobPool _jobPool;
     private readonly IIpfsGateway _ipfsGateway;
     private readonly IMetadataRepository _metadataRepository;
+    private readonly IFeedService _feedService;
 
     public TorznabService(
         IBookRepository bookRepository,
         IOptions<ApplicationSettings> optionsAccessor,
         IBackgroundJobPool jobPool,
         IIpfsGateway ipfsGateway,
-        IMetadataRepository metadataRepository
+        IMetadataRepository metadataRepository,
+        IFeedService feedService
     )
     {
         _bookRepository = bookRepository;
@@ -32,6 +35,7 @@ public class TorznabService : ITorznabService
         _jobPool = jobPool;
         _ipfsGateway = ipfsGateway;
         _metadataRepository = metadataRepository;
+        _feedService = feedService;
     }
 
     public Task<TorznabCapabilitiesResponse> GetCapabilities()
@@ -68,7 +72,9 @@ public class TorznabService : ITorznabService
     public async Task<TorznabRss> GetFeed(TorznabRequest request)
     {
         var metadata = await _metadataRepository.GetMetadata();
-        var items = await _bookRepository.GetBooksFromTorznabQuery(request);
+        var items = request.IsRSS
+            ? await _feedService.GetFeed(request.Limit, request.Offset)
+            : await _bookRepository.GetBooksFromTorznabQuery(request);
 
         var result = new TorznabRss
         {
@@ -83,7 +89,7 @@ public class TorznabService : ITorznabService
         if (request.Offset > 200 && !string.IsNullOrWhiteSpace(request.Query))
             result.Channel.Item = new();
 
-        if (items.Count == 1)
+        if (items.Count == 1 && !request.IsRSS)
         {
             await _jobPool.QueueBackgroundWorkItemAsync((ct) => QueueIPFSDownload(items[0], ct));
         }

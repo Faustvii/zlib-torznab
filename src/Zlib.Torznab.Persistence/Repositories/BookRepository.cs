@@ -58,6 +58,33 @@ public class BookRepository : IBookRepository
         }
     }
 
+    public async Task<IReadOnlyList<Book>> GetBookFeed(DateTime newerThan, int limit, int offset)
+    {
+        var request = new TorznabRequest(
+            Array.Empty<string>(),
+            Query: null,
+            Author: null,
+            Title: null,
+            Year: null,
+            Limit: limit,
+            Offset: offset
+        );
+        var fictionQuery = ApplyFiltering(GetFictionQuery(orderByDate: true), request)
+            .Take(request.Limit * 3);
+        var libgenQuery = ApplyFiltering(GetLibgenQuery(orderByDate: true), request)
+            .Take(request.Limit * 3);
+        var zlibQuery = ApplyFiltering(GetZlibQuery(orderByDate: true), request)
+            .Take(request.Limit * 3);
+
+        return await fictionQuery
+            .Union(libgenQuery)
+            .Union(zlibQuery)
+            .Where(x => x.TimeModified < newerThan && x.TimeAdded < newerThan)
+            .OrderByDescending(x => x.TimeAdded)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
     private static IQueryable<Book> ApplyFiltering(IQueryable<Book> query, TorznabRequest request)
     {
         query = query.Where(
@@ -117,9 +144,20 @@ public class BookRepository : IBookRepository
         return query;
     }
 
-    private IQueryable<Book> GetLibgenQuery()
+    private IQueryable<Book> GetLibgenQuery(
+        Expression<Func<Libgen, bool>>? predicate = null,
+        bool orderByDate = false
+    )
     {
-        var libgenQuery = _context.Libgen
+        var query = _context.Libgen.AsQueryable();
+        if (predicate != null)
+            query = query.Where(predicate);
+
+        if (orderByDate)
+            query = query
+                .OrderByDescending(x => x.TimeLastModified)
+                .ThenByDescending(x => x.TimeAdded);
+        var libgenQuery = query
             .Join(
                 _context.LibgenHashes,
                 f => f.Md5,
@@ -136,7 +174,8 @@ public class BookRepository : IBookRepository
                         Title = x.Libgen.Title,
                         Year = x.Libgen.Year,
                         Extension = x.Libgen.Extension,
-                        TimeAdded = x.Libgen.TimeLastModified ?? x.Libgen.TimeAdded,
+                        TimeAdded = x.Libgen.TimeAdded,
+                        TimeModified = x.Libgen.TimeLastModified,
                         IpfsCid = x.Hash.IpfsCid,
                         Filesize = x.Libgen.Filesize,
                         Pages = x.Libgen.Pages,
@@ -151,9 +190,21 @@ public class BookRepository : IBookRepository
         return libgenQuery;
     }
 
-    private IQueryable<Book> GetFictionQuery()
+    private IQueryable<Book> GetFictionQuery(
+        Expression<Func<Fiction, bool>>? predicate = null,
+        bool orderByDate = false
+    )
     {
-        var fictionQuery = _context.Fictions
+        var query = _context.Fictions.AsQueryable();
+        if (predicate != null)
+            query = query.Where(predicate);
+
+        if (orderByDate)
+            query = query
+                .OrderByDescending(x => x.TimeLastModified)
+                .ThenByDescending(x => x.TimeAdded);
+
+        var fictionQuery = query
             .Join(
                 _context.FictionHashes,
                 f => f.Md5,
@@ -170,7 +221,8 @@ public class BookRepository : IBookRepository
                         Title = x.Fiction.Title,
                         Year = x.Fiction.Year,
                         Extension = x.Fiction.Extension,
-                        TimeAdded = x.Fiction.TimeLastModified ?? x.Fiction.TimeAdded,
+                        TimeAdded = x.Fiction.TimeAdded,
+                        TimeModified = x.Fiction.TimeLastModified,
                         IpfsCid = x.Hash.IpfsCid,
                         Filesize = x.Fiction.Filesize,
                         Pages = x.Fiction.Pages,
@@ -185,11 +237,16 @@ public class BookRepository : IBookRepository
         return fictionQuery;
     }
 
-    private IQueryable<Book> GetZlibQuery(Expression<Func<ZlibBook, bool>>? predicate = null)
+    private IQueryable<Book> GetZlibQuery(
+        Expression<Func<ZlibBook, bool>>? predicate = null,
+        bool orderByDate = false
+    )
     {
         var query = _context.ZlibBooks.AsQueryable();
         if (predicate != null)
             query = query.Where(predicate);
+        if (orderByDate)
+            query = query.OrderByDescending(x => x.Modified).ThenByDescending(x => x.Added);
 
         return query.Select(
             x =>
@@ -201,7 +258,8 @@ public class BookRepository : IBookRepository
                     Title = x.Title,
                     Year = x.Year,
                     Extension = x.Extension,
-                    TimeAdded = x.Modified,
+                    TimeAdded = x.Added,
+                    TimeModified = x.Modified,
                     IpfsCid = x.Ipfs.IpfsCid,
                     Filesize = x.FileSize ?? x.FileSizeReported,
                     Pages = x.Pages,

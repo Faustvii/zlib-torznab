@@ -14,6 +14,7 @@ using Zlib.Torznab.Presentation.API.HostedServices;
 using Zlib.Torznab.Presentation.API.Services;
 using Zlib.Torznab.Services.Ipfs;
 using Zlib.Torznab.Services.Metadata;
+using Zlib.Torznab.Services.Rss;
 using Zlib.Torznab.Services.Torrents;
 using Zlib.Torznab.Services.Torznab;
 
@@ -64,6 +65,7 @@ builder.Services.AddScoped<IMetadataRepository, MetadataRepository>();
 
 builder.Services.AddScoped<ITorznabService, TorznabService>();
 builder.Services.AddScoped<IMetadataService, MetadataService>();
+builder.Services.AddScoped<IFeedService, FeedService>();
 
 builder.Services.Configure<ApplicationSettings>(
     builder.Configuration.GetSection(ApplicationSettings.Key)

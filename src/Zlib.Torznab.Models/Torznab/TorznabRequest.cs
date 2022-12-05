@@ -8,4 +8,7 @@ public record TorznabRequest(
     string? Year,
     int Limit = 100,
     int Offset = 0
-);
+)
+{
+    public bool IsRSS => Query is null && Author is null && Title is null && Year is null;
+};
