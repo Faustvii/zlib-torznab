@@ -1,3 +1,10 @@
+## [2.1.8](https://github.com/Faustvii/zlib-torznab/compare/v2.1.7...v2.1.8) (2022-12-05)
+
+
+### Bug Fixes
+
+* ordered the index incorrectly so it wasn't used... ([fe26464](https://github.com/Faustvii/zlib-torznab/commit/fe264645fd60897d9666cca12aa904000a29986e))
+
 ## [2.1.7](https://github.com/Faustvii/zlib-torznab/compare/v2.1.6...v2.1.7) (2022-12-05)
 
 
