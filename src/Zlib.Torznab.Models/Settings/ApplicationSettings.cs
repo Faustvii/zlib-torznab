@@ -8,4 +8,5 @@ public class ApplicationSettings
     public TorrentSettings Torrent { get; set; } = new();
     public TorznabSettings Torznab { get; set; } = new();
     public MetadataSettings Metadata { get; set; } = new();
+    public ElasticSettings Elastic { get; set; } = new();
 }

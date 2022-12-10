@@ -1,7 +1,7 @@
 using MonoTorrent.Connections;
 using MonoTorrent.Connections.TrackerServer;
 
-namespace Zlib.Torznab.Presentation.API.Services;
+namespace Zlib.Torznab.Presentation.API.Core;
 
 public class APITrackerListener : TrackerListener
 {

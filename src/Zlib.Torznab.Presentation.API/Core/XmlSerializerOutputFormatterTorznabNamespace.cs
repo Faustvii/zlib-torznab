@@ -2,7 +2,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
-namespace Zlib.Torznab.Presentation.API;
+namespace Zlib.Torznab.Presentation.API.Core;
 
 public class XmlSerializerOutputFormatterTorznabNamespace : XmlSerializerOutputFormatter
 {

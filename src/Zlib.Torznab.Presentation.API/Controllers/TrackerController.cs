@@ -2,7 +2,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Zlib.Torznab.Models.Settings;
-using Zlib.Torznab.Presentation.API.Services;
+using Zlib.Torznab.Presentation.API.Core;
 
 namespace Zlib.Torznab.Presentation.API.Controllers;
 
@@ -44,9 +44,7 @@ public class TrackerController : ControllerBase
         ip = TranslateIP(ip);
 
         var response = _trackerListener.Handle(Request.QueryString.Value, ip, isScrape: false);
-        // var responseString = Encoding.UTF8.GetString(response.Encode());
         return File(response.Encode(), "text/plain");
-        // return Content(responseString);
     }
 
     [HttpGet]
@@ -83,7 +81,6 @@ public class TrackerController : ControllerBase
             {
                 realIp = Dns.GetHostAddresses(translated)[0];
             }
-            // var realIp = IPAddress.Parse(translated);
             return realIp;
         }
         return address;

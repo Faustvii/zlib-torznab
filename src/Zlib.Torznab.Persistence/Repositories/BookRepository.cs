@@ -2,7 +2,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Zlib.Torznab.Models.Archive;
 using Zlib.Torznab.Models.Repositories;
-using Zlib.Torznab.Models.Torznab;
 using Zlib.Torznab.Persistence.Models;
 
 namespace Zlib.Torznab.Persistence.Repositories;
@@ -26,122 +25,69 @@ public class BookRepository : IBookRepository
         return book;
     }
 
-    public async Task<IReadOnlyList<Book>> GetBooksFromTorznabQuery(TorznabRequest request)
+    public async Task<IReadOnlyList<Book>> GetLibgenFictionForIndex(
+        int limit,
+        DateTime newerThan,
+        int skip
+    )
     {
-        var fictionQuery = ApplyFiltering(GetFictionQuery(), request);
-        var libgenQuery = ApplyFiltering(GetLibgenQuery(), request);
-        var zlibQuery = ApplyFiltering(GetZlibQuery(), request);
-
-        try
-        {
-            return await fictionQuery
-                .OrderByDescending(x => x.Id)
-                .Take(request.Limit)
-                .Skip(request.Offset)
-                .Concat(
-                    libgenQuery
-                        .OrderByDescending(x => x.Id)
-                        .Skip(request.Offset)
-                        .Take(request.Limit)
-                )
-                .Concat(
-                    zlibQuery.OrderByDescending(x => x.Id).Skip(request.Offset).Take(request.Limit)
-                )
-                .OrderByDescending(x => x.TimeAdded)
-                .Skip(request.Offset)
-                .Take(request.Limit)
-                .ToListAsync();
-        }
-        catch (System.Exception)
-        {
-            throw;
-        }
-    }
-
-    public async Task<IReadOnlyList<Book>> GetBookFeed(DateTime newerThan, int limit, int offset)
-    {
-        var request = new TorznabRequest(
-            Array.Empty<string>(),
-            Query: null,
-            Author: null,
-            Title: null,
-            Year: null,
-            Limit: limit,
-            Offset: offset
-        );
-        var fictionQuery = ApplyFiltering(GetFictionQuery(orderByDate: true), request)
-            .Take(request.Limit * 3);
-        var libgenQuery = ApplyFiltering(GetLibgenQuery(orderByDate: true), request)
-            .Take(request.Limit * 3);
-        var zlibQuery = ApplyFiltering(GetZlibQuery(orderByDate: true), request)
-            .Take(request.Limit * 3);
-
-        return await fictionQuery
-            .Union(libgenQuery)
-            .Union(zlibQuery)
-            .Where(x => x.TimeModified < newerThan && x.TimeAdded < newerThan)
-            .OrderByDescending(x => x.TimeAdded)
-            .Skip(offset)
+        return await GetFictionQuery()
+            .Where(
+                x =>
+                    x.IpfsCid != ""
+#pragma warning disable MA0002 // Does not work with LINQ to entities
+                    && AllowedExtensions.Contains(x.Extension)
+#pragma warning restore MA0002
+                    && (x.Language == "" || x.Language == "English" || x.Language == "other")
+                    && x.TimeModified >= newerThan
+                    && x.TimeAdded >= newerThan
+            )
+            .OrderBy(x => x.TimeAdded)
+            // .ThenBy(x => x.TimeAdded)
+            .Skip(skip)
             .Take(limit)
             .ToListAsync();
     }
-    private static IQueryable<Book> ApplyFiltering(IQueryable<Book> query, TorznabRequest request)
+
+    public async Task<IReadOnlyList<Book>> GetLibgenForIndex(
+        int limit,
+        DateTime newerThan,
+        int skip
+    )
     {
-        query = query.Where(
-            x =>
-                x.IpfsCid != ""
-#pragma warning disable MA0002 // Does not work with LINQ to entities
-                && AllowedExtensions.Contains(x.Extension)
-                && (x.Language == "" || x.Language == "English" || x.Language == "other")
-#pragma warning restore MA0002
-        );
-        if (!string.IsNullOrWhiteSpace(request.Query))
-        {
-            query = query.Where(
+        return await GetLibgenQuery()
+            .Where(
                 x =>
-                    EF.Functions.Match(x.Title, request.Query, MySqlMatchSearchMode.NaturalLanguage)
-                    && EF.Functions.Match(
-                        x.Author,
-                        request.Query,
-                        MySqlMatchSearchMode.NaturalLanguage
-                    )
-            );
-        }
+                    x.IpfsCid != ""
+#pragma warning disable MA0002 // Does not work with LINQ to entities
+                    && AllowedExtensions.Contains(x.Extension)
+#pragma warning restore MA0002
+                    && (x.Language == "" || x.Language == "English" || x.Language == "other")
+                    && x.TimeModified >= newerThan
+                    && x.TimeAdded >= newerThan
+            )
+            .OrderBy(x => x.TimeAdded)
+            // .ThenBy(x => x.TimeAdded)
+            .Skip(skip)
+            .Take(limit)
+            .ToListAsync();
+    }
 
-        if (!string.IsNullOrWhiteSpace(request.Author))
-        {
-            var author = string.Join(
-                " ",
-                request.Author
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => $"+{x.Trim()}")
-                    .ToArray()
-            );
-            query = query.Where(
-                x => EF.Functions.Match(x.Author, author, MySqlMatchSearchMode.Boolean)
-            );
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.Title))
-        {
-            var title = string.Join(
-                " ",
-                request.Title
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => $"+{x.Trim()}")
-                    .ToArray()
-            );
-            query = query.Where(
-                x => EF.Functions.Match(x.Title, title, MySqlMatchSearchMode.Boolean)
-            );
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.Year))
-        {
-            query = query.Where(x => x.Year == request.Year);
-        }
-
-        return query;
+    public async Task<IReadOnlyList<Book>> GetZlibForIndex(int limit, uint offset)
+    {
+        _context.Database.SetCommandTimeout(120);
+        return await GetZlibQuery(
+                x =>
+#pragma warning disable MA0002 // Does not work with LINQ to entities
+                    AllowedExtensions.Contains(x.Extension)
+#pragma warning restore MA0002
+                    && (x.Language == "" || x.Language == "English" || x.Language == "other")
+                    && x.Id > offset
+            )
+            .OrderBy(x => x.Id)
+            // .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
     }
 
     private IQueryable<Book> GetLibgenQuery(
@@ -242,7 +188,9 @@ public class BookRepository : IBookRepository
         bool orderByDate = false
     )
     {
-        var query = _context.ZlibBooks.AsQueryable();
+        var query = _context.ZlibBooks
+            .Join(_context.ZlibIpfs, x => x.Id, x => x.Id, (book, ipfs) => book)
+            .AsQueryable();
         if (predicate != null)
             query = query.Where(predicate);
         if (orderByDate)

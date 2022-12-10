@@ -7,35 +7,32 @@ using Zlib.Torznab.Models.Settings;
 using Zlib.Torznab.Models.Torznab;
 using Zlib.Torznab.Models.Torznab.Capabilities;
 using Zlib.Torznab.Models.Torznab.Rss;
+using Zlib.Torznab.Services.Elastic;
 using Zlib.Torznab.Services.Ipfs;
-using Zlib.Torznab.Services.Rss;
 
 namespace Zlib.Torznab.Services.Torznab;
 
 public class TorznabService : ITorznabService
 {
-    private readonly IBookRepository _bookRepository;
     private readonly ApplicationSettings _applicationSettings;
     private readonly IBackgroundJobPool _jobPool;
     private readonly IIpfsGateway _ipfsGateway;
     private readonly IMetadataRepository _metadataRepository;
-    private readonly IFeedService _feedService;
+    private readonly IElasticService _elasticService;
 
     public TorznabService(
-        IBookRepository bookRepository,
         IOptions<ApplicationSettings> optionsAccessor,
         IBackgroundJobPool jobPool,
         IIpfsGateway ipfsGateway,
         IMetadataRepository metadataRepository,
-        IFeedService feedService
+        IElasticService elasticService
     )
     {
-        _bookRepository = bookRepository;
         _applicationSettings = optionsAccessor.Value;
         _jobPool = jobPool;
         _ipfsGateway = ipfsGateway;
         _metadataRepository = metadataRepository;
-        _feedService = feedService;
+        _elasticService = elasticService;
     }
 
     public Task<TorznabCapabilitiesResponse> GetCapabilities()
@@ -73,8 +70,8 @@ public class TorznabService : ITorznabService
     {
         var metadata = await _metadataRepository.GetMetadata();
         var items = request.IsRSS
-            ? await _feedService.GetFeed(request.Limit, request.Offset)
-            : await _bookRepository.GetBooksFromTorznabQuery(request);
+            ? await _elasticService.RssFeed(request.Limit, request.Offset)
+            : await _elasticService.Search(request);
 
         var result = new TorznabRss
         {

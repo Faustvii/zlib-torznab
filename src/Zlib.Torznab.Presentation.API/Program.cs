@@ -3,20 +3,12 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
-using MonoTorrent.Connections.TrackerServer;
-using Zlib.Torznab.Models.Queues;
 using Zlib.Torznab.Models.Repositories;
-using Zlib.Torznab.Models.Settings;
 using Zlib.Torznab.Persistence;
 using Zlib.Torznab.Persistence.Repositories;
+using Zlib.Torznab.Presentation.API.Core;
+using Zlib.Torznab.Services;
 using Zlib.Torznab.Presentation.API;
-using Zlib.Torznab.Presentation.API.HostedServices;
-using Zlib.Torznab.Presentation.API.Services;
-using Zlib.Torznab.Services.Ipfs;
-using Zlib.Torznab.Services.Metadata;
-using Zlib.Torznab.Services.Rss;
-using Zlib.Torznab.Services.Torrents;
-using Zlib.Torznab.Services.Torznab;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,38 +39,14 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<IBackgroundJobPool>(new DefaultBackgroundJobPool(30));
-
-builder.Services.AddHostedService<HostedTorrentService>();
-builder.Services.AddHostedService<HostedTrackerService>();
-builder.Services.AddHostedService<HostedBackgroundJobPoolService>();
-builder.Services.AddHostedService<HostedDatabaseUpdater>();
-
-builder.Services.AddSingleton<ITrackerListener, APITrackerListener>();
-builder.Services.AddSingleton<APITrackerListener>();
-builder.Services.AddSingleton<ITorrentService, TorrentService>();
-
-builder.Services.AddHttpClient<IIpfsGateway, IpfsGateway>();
-
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IMetadataRepository, MetadataRepository>();
 
-builder.Services.AddScoped<ITorznabService, TorznabService>();
-builder.Services.AddScoped<IMetadataService, MetadataService>();
-builder.Services.AddScoped<IFeedService, FeedService>();
-
-builder.Services.Configure<ApplicationSettings>(
-    builder.Configuration.GetSection(ApplicationSettings.Key)
-);
-
-builder.Services.Configure<IpfsSettings>(builder.Configuration.GetSection(IpfsSettings.Key));
-
-builder.Services.Configure<TorrentSettings>(builder.Configuration.GetSection(TorrentSettings.Key));
-
-builder.Services.Configure<TorznabSettings>(builder.Configuration.GetSection(TorznabSettings.Key));
-builder.Services.Configure<MetadataSettings>(
-    builder.Configuration.GetSection(MetadataSettings.Key)
-);
+builder.Services
+    .AddApplicationSettings(builder.Configuration)
+    .AddCore()
+    .AddHostedServices()
+    .AddServiceLayer(builder.Configuration);
 
 var connectionString = builder.Configuration.GetConnectionString("Archive");
 var serverVersion = ServerVersion.AutoDetect(connectionString);
@@ -89,20 +57,12 @@ builder.Services.AddDbContext<ArchiveContext>(
             serverVersion,
             o => o.EnableStringComparisonTranslations().EnableIndexOptimizedBooleanColumns()
         )
-// .LogTo(Console.WriteLine, LogLevel.Information)
-// .EnableSensitiveDataLogging()
-// .EnableDetailedErrors()
 );
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
 app.UseSwagger();
 app.UseSwaggerUI(x => x.DisplayRequestDuration());
-
-// }
 
 app.UseHttpsRedirection();
 

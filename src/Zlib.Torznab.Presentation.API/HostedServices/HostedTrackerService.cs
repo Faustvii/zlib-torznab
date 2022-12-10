@@ -1,6 +1,6 @@
 using MonoTorrent.Client;
 using MonoTorrent.TrackerServer;
-using Zlib.Torznab.Presentation.API.Services;
+using Zlib.Torznab.Presentation.API.Core;
 using Zlib.Torznab.Services.Torrents;
 
 namespace Zlib.Torznab.Presentation.API.HostedServices;
