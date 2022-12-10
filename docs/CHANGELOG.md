@@ -1,3 +1,13 @@
+# [3.0.0](https://github.com/Faustvii/zlib-torznab/compare/v2.1.9...v3.0.0) (2022-12-10)
+
+
+* feat!: Added Elastic search as a the search engine instead of mysql ([0b0bb9b](https://github.com/Faustvii/zlib-torznab/commit/0b0bb9b5d38267f242c57e1179bb660a8a4a6e48))
+
+
+### BREAKING CHANGES
+
+* Requires new elastic config setting
+
 ## [2.1.9](https://github.com/Faustvii/zlib-torznab/compare/v2.1.8...v2.1.9) (2022-12-05)
 
 
