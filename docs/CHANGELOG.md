@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/Faustvii/zlib-torznab/compare/v3.0.0...v3.0.1) (2022-12-12)
+
+
+### Bug Fixes
+
+* elastic index condition for new items was wrong ([54819f8](https://github.com/Faustvii/zlib-torznab/commit/54819f89da394a62da3c527ede27c1484f084133))
+
 # [3.0.0](https://github.com/Faustvii/zlib-torznab/compare/v2.1.9...v3.0.0) (2022-12-10)
 
 
