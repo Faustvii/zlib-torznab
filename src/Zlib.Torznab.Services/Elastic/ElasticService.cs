@@ -116,7 +116,7 @@ public class ElasticService : IElasticService
             _logger.LogInformation(
                 "Updated {BooksCounter} books for {BookSource}",
                 bookCounter,
-                "LibgenFiction"
+                "Libgen"
             );
             metadata.LastestLibgenEntry = latestDate.Value;
             await _metadataRepository.UpdateMetadata(metadata);

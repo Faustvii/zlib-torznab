@@ -39,8 +39,7 @@ public class BookRepository : IBookRepository
                     && AllowedExtensions.Contains(x.Extension)
 #pragma warning restore MA0002
                     && (x.Language == "" || x.Language == "English" || x.Language == "other")
-                    && x.TimeModified >= newerThan
-                    && x.TimeAdded >= newerThan
+                    && (x.TimeModified >= newerThan || x.TimeAdded >= newerThan)
             )
             .OrderBy(x => x.TimeAdded)
             // .ThenBy(x => x.TimeAdded)
@@ -63,8 +62,7 @@ public class BookRepository : IBookRepository
                     && AllowedExtensions.Contains(x.Extension)
 #pragma warning restore MA0002
                     && (x.Language == "" || x.Language == "English" || x.Language == "other")
-                    && x.TimeModified >= newerThan
-                    && x.TimeAdded >= newerThan
+                    && (x.TimeModified >= newerThan || x.TimeAdded >= newerThan)
             )
             .OrderBy(x => x.TimeAdded)
             // .ThenBy(x => x.TimeAdded)
