@@ -106,7 +106,7 @@ public class ElasticService : IElasticService
             else
                 skip = 0;
             previousNewerThan = newerThan;
-            newerThan = books.Max(x => x.TimeAdded);
+            newerThan = MaxDate(newerThan, books.Max(x => x.TimeAdded));
             latestDate = MaxDate(latestDate ?? DateTime.MinValue, books.Max(x => x.LatestChange));
             bookCounter += books.Count;
             books = await _bookRepository.GetLibgenForIndex(take, newerThan, skip);
@@ -120,6 +120,10 @@ public class ElasticService : IElasticService
             );
             metadata.LastestLibgenEntry = latestDate.Value;
             await _metadataRepository.UpdateMetadata(metadata);
+        }
+        else
+        {
+            _logger.LogInformation("{BookSource} is up to date", "Libgen");
         }
     }
 
@@ -146,7 +150,7 @@ public class ElasticService : IElasticService
             else
                 skip = 0;
             previousNewerThan = newerThan;
-            newerThan = books.Max(x => x.TimeAdded);
+            newerThan = MaxDate(newerThan, books.Max(x => x.TimeAdded));
             latestDate = MaxDate(latestDate ?? DateTime.MinValue, books.Max(x => x.LatestChange));
             bookCounter += books.Count;
             books = await _bookRepository.GetLibgenFictionForIndex(take, newerThan, skip);
@@ -161,6 +165,10 @@ public class ElasticService : IElasticService
             );
             metadata.LastestLibgenFictionEntry = latestDate.Value;
             await _metadataRepository.UpdateMetadata(metadata);
+        }
+        else
+        {
+            _logger.LogInformation("{BookSource} is up to date", "LibgenFiction");
         }
     }
 
