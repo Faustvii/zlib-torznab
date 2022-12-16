@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/Faustvii/zlib-torznab/compare/v3.0.1...v3.0.2) (2022-12-16)
+
+
+### Bug Fixes
+
+* elastic indexing would sometimes index data from the past when it shouldn't ([f818a57](https://github.com/Faustvii/zlib-torznab/commit/f818a57231517dae1fdbda075188faae4f1cbc30))
+
 ## [3.0.1](https://github.com/Faustvii/zlib-torznab/compare/v3.0.0...v3.0.1) (2022-12-12)
 
 
