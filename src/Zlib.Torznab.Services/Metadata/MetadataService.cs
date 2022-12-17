@@ -138,14 +138,26 @@ public partial class MetadataService : IMetadataService
 
     private async Task DownloadDataDump(LibgenDump libgenDump, CancellationToken cancellationToken)
     {
+        var dumpFile = Path.Combine(_metadataSettings.WorkingDirectory, libgenDump.FileName);
+        if (File.Exists(dumpFile))
+        {
+            var lastDump = File.GetLastWriteTimeUtc(dumpFile);
+            if (DateOnly.FromDateTime(lastDump) == libgenDump.DumpDate)
+            {
+                _logger.LogInformation(
+                    "We already have a dbdump of {dbdump} from this date downloaded",
+                    libgenDump.FileName
+                );
+                return;
+            }
+        }
         _logger.LogInformation("Starting download of dbdump {dbdump}", libgenDump.FileName);
+
         await using var httpStream = await _httpClient.GetStreamAsync(
             $"{_metadataSettings.Libgen.DumpDirectoryUrl}{libgenDump.FileName}",
             cancellationToken
         );
-        await using var file = File.Create(
-            Path.Combine(_metadataSettings.WorkingDirectory, libgenDump.FileName)
-        );
+        await using var file = File.Create(dumpFile);
         CopyStream(httpStream, file);
         _logger.LogInformation("Finished download of dbdump {dbdump}", libgenDump.FileName);
     }
@@ -209,6 +221,35 @@ public partial class MetadataService : IMetadataService
             (line) =>
                 lineStartsToDiscard.Any(x => line.StartsWith(x, StringComparison.OrdinalIgnoreCase))
         );
+
+        File.Move(outputFile, inputFile);
+
+        var stopLineOne = "/*!40000 ALTER TABLE `updated` ENABLE KEYS */;";
+        var stopLineTwo = "UNLOCK TABLES;";
+        var hashLine = "/*!40000 ALTER TABLE `hashes` ENABLE KEYS */;";
+        using var reader = new StreamReader(inputFile);
+        using var writer = new StreamWriter(outputFile);
+        string? line;
+        string? previousLine = null;
+        var stop = false;
+        var hasSeenHashes = false;
+        while ((line = reader.ReadLine()) != null)
+        {
+            if (
+                hasSeenHashes
+                && string.Equals(line, stopLineTwo, StringComparison.Ordinal)
+                && string.Equals(previousLine, stopLineOne, StringComparison.Ordinal)
+            )
+                stop = true;
+
+            if (string.Equals(line, hashLine, StringComparison.Ordinal))
+                hasSeenHashes = true;
+
+            writer.WriteLine(line);
+            previousLine = line;
+            if (stop)
+                break;
+        }
     }
 
     private async Task ImportSqlFileToDatabase(
