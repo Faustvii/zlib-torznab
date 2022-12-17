@@ -1,3 +1,10 @@
+## [3.0.4](https://github.com/Faustvii/zlib-torznab/compare/v3.0.3...v3.0.4) (2022-12-17)
+
+
+### Bug Fixes
+
+* increase command timeout on indexing queries ([7b0f564](https://github.com/Faustvii/zlib-torznab/commit/7b0f56415d7c571324f31dc01ada62f808186aca))
+
 ## [3.0.3](https://github.com/Faustvii/zlib-torznab/compare/v3.0.2...v3.0.3) (2022-12-17)
 
 
