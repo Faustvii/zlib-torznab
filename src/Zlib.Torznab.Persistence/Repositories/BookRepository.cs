@@ -31,6 +31,7 @@ public class BookRepository : IBookRepository
         int skip
     )
     {
+        _context.Database.SetCommandTimeout(60);
         return await GetFictionQuery()
             .Where(
                 x =>
@@ -54,6 +55,7 @@ public class BookRepository : IBookRepository
         int skip
     )
     {
+        _context.Database.SetCommandTimeout(60);
         return await GetLibgenQuery()
             .Where(
                 x =>
