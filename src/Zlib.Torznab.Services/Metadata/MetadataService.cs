@@ -222,7 +222,7 @@ public partial class MetadataService : IMetadataService
                 lineStartsToDiscard.Any(x => line.StartsWith(x, StringComparison.OrdinalIgnoreCase))
         );
 
-        File.Move(outputFile, inputFile);
+        File.Move(outputFile, inputFile, overwrite: true);
 
         var stopLineOne = "/*!40000 ALTER TABLE `updated` ENABLE KEYS */;";
         var stopLineTwo = "UNLOCK TABLES;";
