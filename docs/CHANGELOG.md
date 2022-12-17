@@ -1,3 +1,10 @@
+## [3.0.3](https://github.com/Faustvii/zlib-torznab/compare/v3.0.2...v3.0.3) (2022-12-17)
+
+
+### Bug Fixes
+
+* additional processing of libgen sql ([73e0a5f](https://github.com/Faustvii/zlib-torznab/commit/73e0a5fcacfaeb8465d5b8e0de464260a45c356c))
+
 ## [3.0.2](https://github.com/Faustvii/zlib-torznab/compare/v3.0.1...v3.0.2) (2022-12-16)
 
 
