@@ -1,3 +1,10 @@
+## [3.0.5](https://github.com/Faustvii/zlib-torznab/compare/v3.0.4...v3.0.5) (2022-12-17)
+
+
+### Bug Fixes
+
+* we should overwrite the file when we know it already exists.. ([28240eb](https://github.com/Faustvii/zlib-torznab/commit/28240ebdb82ea65de9334e4d8fd000732b701555))
+
 ## [3.0.4](https://github.com/Faustvii/zlib-torznab/compare/v3.0.3...v3.0.4) (2022-12-17)
 
 
