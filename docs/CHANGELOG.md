@@ -1,3 +1,11 @@
+## [3.0.7](https://github.com/Faustvii/zlib-torznab/compare/v3.0.6...v3.0.7) (2022-12-24)
+
+
+### Bug Fixes
+
+* guard against dropping or renaming if import didn't go well ([b0ed000](https://github.com/Faustvii/zlib-torznab/commit/b0ed000dee4cf8ad494db551b9c7fb2ad3e001f2))
+* running multiple imports at same time.. ([e87759b](https://github.com/Faustvii/zlib-torznab/commit/e87759b95b916b73dbbf0e689b135ecdf40fb7a2))
+
 ## [3.0.6](https://github.com/Faustvii/zlib-torznab/compare/v3.0.5...v3.0.6) (2022-12-24)
 
 
