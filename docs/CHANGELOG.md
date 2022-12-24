@@ -1,3 +1,10 @@
+## [3.0.6](https://github.com/Faustvii/zlib-torznab/compare/v3.0.5...v3.0.6) (2022-12-24)
+
+
+### Bug Fixes
+
+* hosted services crashing app on exception, now they will be logged ([828e51d](https://github.com/Faustvii/zlib-torznab/commit/828e51d674c18a438bb7c49e5e7e76d98a10b7a4))
+
 ## [3.0.5](https://github.com/Faustvii/zlib-torznab/compare/v3.0.4...v3.0.5) (2022-12-17)
 
 
