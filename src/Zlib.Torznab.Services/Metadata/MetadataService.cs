@@ -30,6 +30,7 @@ public partial class MetadataService : IMetadataService
     private readonly IMetadataRepository _metadataRepository;
     private readonly ILogger<MetadataService> _logger;
     private readonly MetadataSettings _metadataSettings;
+    private readonly SemaphoreSlim _semaphore = new(1);
 
     public MetadataService(
         HttpClient httpClient,
@@ -46,31 +47,43 @@ public partial class MetadataService : IMetadataService
 
     public async Task ImportLatestData(CancellationToken cancellationToken)
     {
-        var metadata = await _metadataRepository.GetMetadata();
-        var (fiction, libgen) = await GetLatestDumpMetadata(cancellationToken);
-        if (fiction.DumpDate > DateOnly.FromDateTime(metadata.LastFictionImport))
+        try
         {
-            _logger.LogInformation("Libgen fiction outdated");
-            var workingDirectory = _metadataSettings.WorkingDirectory;
-            var cleanSqlName = Path.Combine(workingDirectory, "fiction_clean.sql");
-            var sqlFileName = await GetDumpData(fiction, cleanSqlName, cancellationToken);
-            CleanFiction(sqlFileName, cleanSqlName);
-            await ImportSqlFileToDatabase(cleanSqlName, cancellationToken);
-            await PostProcess("fiction", cancellationToken);
-            metadata.LatestUpdate = metadata.LastFictionImport = DateTime.UtcNow;
-            await _metadataRepository.UpdateMetadata(metadata);
-        }
+            await _semaphore.WaitAsync(cancellationToken);
+            var metadata = await _metadataRepository.GetMetadata();
+            var (fiction, libgen) = await GetLatestDumpMetadata(cancellationToken);
+            if (fiction.DumpDate > DateOnly.FromDateTime(metadata.LastFictionImport))
+            {
+                _logger.LogInformation("Libgen fiction outdated");
+                var workingDirectory = _metadataSettings.WorkingDirectory;
+                var cleanSqlName = Path.Combine(workingDirectory, "fiction_clean.sql");
+                var sqlFileName = await GetDumpData(fiction, cleanSqlName, cancellationToken);
+                CleanFiction(sqlFileName, cleanSqlName);
+                await ImportSqlFileToDatabase(cleanSqlName, cancellationToken);
+                await PostProcess("fiction", cancellationToken);
+                metadata.LatestUpdate = metadata.LastFictionImport = DateTime.UtcNow;
+                await _metadataRepository.UpdateMetadata(metadata);
+            }
 
-        if (libgen.DumpDate > DateOnly.FromDateTime(metadata.LastLibgenImport))
+            if (libgen.DumpDate > DateOnly.FromDateTime(metadata.LastLibgenImport))
+            {
+                var workingDirectory = _metadataSettings.WorkingDirectory;
+                var cleanSqlName = Path.Combine(workingDirectory, "libgen_clean.sql");
+                var sqlFileName = await GetDumpData(libgen, cleanSqlName, cancellationToken);
+                CleanLibgen(sqlFileName, cleanSqlName);
+                await ImportSqlFileToDatabase(cleanSqlName, cancellationToken);
+                await PostProcess("libgen", cancellationToken);
+                metadata.LatestUpdate = metadata.LastLibgenImport = DateTime.UtcNow;
+                await _metadataRepository.UpdateMetadata(metadata);
+            }
+        }
+        catch (Exception)
         {
-            var workingDirectory = _metadataSettings.WorkingDirectory;
-            var cleanSqlName = Path.Combine(workingDirectory, "libgen_clean.sql");
-            var sqlFileName = await GetDumpData(libgen, cleanSqlName, cancellationToken);
-            CleanLibgen(sqlFileName, cleanSqlName);
-            await ImportSqlFileToDatabase(cleanSqlName, cancellationToken);
-            await PostProcess("libgen", cancellationToken);
-            metadata.LatestUpdate = metadata.LastLibgenImport = DateTime.UtcNow;
-            await _metadataRepository.UpdateMetadata(metadata);
+            throw;
+        }
+        finally
+        {
+            _semaphore.Release();
         }
     }
 
