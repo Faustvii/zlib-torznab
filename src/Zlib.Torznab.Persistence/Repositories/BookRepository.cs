@@ -33,6 +33,8 @@ public class BookRepository : IBookRepository
     {
         _context.Database.SetCommandTimeout(60);
         return await GetFictionQuery()
+            .Where(x => x.TimeModified >= newerThan)
+            .Concat(GetFictionQuery().Where(x => x.TimeAdded >= newerThan))
             .Where(
                 x =>
                     x.IpfsCid != ""
@@ -40,10 +42,8 @@ public class BookRepository : IBookRepository
                     && AllowedExtensions.Contains(x.Extension)
 #pragma warning restore MA0002
                     && (x.Language == "" || x.Language == "English" || x.Language == "other")
-                    && (x.TimeModified >= newerThan || x.TimeAdded >= newerThan)
             )
             .OrderBy(x => x.TimeAdded)
-            // .ThenBy(x => x.TimeAdded)
             .Skip(skip)
             .Take(limit)
             .ToListAsync();
@@ -57,6 +57,8 @@ public class BookRepository : IBookRepository
     {
         _context.Database.SetCommandTimeout(60);
         return await GetLibgenQuery()
+            .Where(x => x.TimeModified >= newerThan)
+            .Concat(GetLibgenQuery().Where(x => x.TimeAdded >= newerThan))
             .Where(
                 x =>
                     x.IpfsCid != ""
@@ -64,10 +66,8 @@ public class BookRepository : IBookRepository
                     && AllowedExtensions.Contains(x.Extension)
 #pragma warning restore MA0002
                     && (x.Language == "" || x.Language == "English" || x.Language == "other")
-                    && (x.TimeModified >= newerThan || x.TimeAdded >= newerThan)
             )
             .OrderBy(x => x.TimeAdded)
-            // .ThenBy(x => x.TimeAdded)
             .Skip(skip)
             .Take(limit)
             .ToListAsync();
