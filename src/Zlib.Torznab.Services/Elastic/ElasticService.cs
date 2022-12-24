@@ -32,8 +32,27 @@ public class ElasticService : IElasticService
             s =>
                 s.Query(
                         q =>
-                            q.Match(m => m.Field(f => f.Author).Query(request.Author))
-                            && q.Match(m => m.Field(f => f.Title).Query(request.Title))
+                            q.Match(
+                                m =>
+                                    m.Field(f => f.Author)
+                                        .Query(request.Author)
+                                        .Operator(Operator.And)
+                            )
+                            && (
+                                q.Match(
+                                    m =>
+                                        m.Field(f => f.Title)
+                                            .Query(request.Title)
+                                            .Operator(Operator.And)
+                                            .Boost(1000d)
+                                )
+                                || q.Match(
+                                    m =>
+                                        m.Field(f => f.Title)
+                                            .Query(request.Title)
+                                            .MinimumShouldMatch(70d)
+                                )
+                            )
                     )
                     .Sort(x => x.Descending(SortSpecialField.Score))
                     .Take(request.Limit)
