@@ -217,7 +217,15 @@ public partial class MetadataService : IMetadataService
             inputFile,
             outputFile,
             (line) =>
-                lineStartsToDiscard.Any(x => line.StartsWith(x, StringComparison.OrdinalIgnoreCase))
+                lineStartsToDiscard.Any(
+                    x => line.StartsWith(x, StringComparison.OrdinalIgnoreCase)
+                ),
+            (line) =>
+                line.Replace(
+                    "KEY `Language` (`Language`),",
+                    "KEY `Language` (`Language`)",
+                    StringComparison.OrdinalIgnoreCase
+                )
         );
     }
 
@@ -239,11 +247,6 @@ public partial class MetadataService : IMetadataService
             "  KEY `Identifier` (`Identifier`),",
             "  KEY `TimeLastModifiedID` (`TimeLastModified`,`ID`) USING BTREE,",
             "  FULLTEXT KEY",
-        };
-
-        var replaceLines = new[,]
-        {
-            { "  KEY `Extension` (`Extension`),", "  KEY `Extension` (`Extension`)" },
         };
 
         StripUselessFromFile(
