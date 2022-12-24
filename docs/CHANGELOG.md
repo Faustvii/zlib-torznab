@@ -1,3 +1,10 @@
+## [3.0.11](https://github.com/Faustvii/zlib-torznab/compare/v3.0.10...v3.0.11) (2022-12-24)
+
+
+### Bug Fixes
+
+* elastic search was way too fuzzy ([62ebdd6](https://github.com/Faustvii/zlib-torznab/commit/62ebdd6722f7841e2cfb3fd749a868e8744e7ce2))
+
 ## [3.0.10](https://github.com/Faustvii/zlib-torznab/compare/v3.0.9...v3.0.10) (2022-12-24)
 
 
