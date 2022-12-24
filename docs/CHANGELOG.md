@@ -1,3 +1,10 @@
+## [3.0.8](https://github.com/Faustvii/zlib-torznab/compare/v3.0.7...v3.0.8) (2022-12-24)
+
+
+### Bug Fixes
+
+* improved metadata import ([2bd4dd6](https://github.com/Faustvii/zlib-torznab/commit/2bd4dd61c76d94de3971e5d03c421346559bb5a8))
+
 ## [3.0.7](https://github.com/Faustvii/zlib-torznab/compare/v3.0.6...v3.0.7) (2022-12-24)
 
 
