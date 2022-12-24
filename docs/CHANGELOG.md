@@ -1,3 +1,11 @@
+## [3.0.10](https://github.com/Faustvii/zlib-torznab/compare/v3.0.9...v3.0.10) (2022-12-24)
+
+
+### Bug Fixes
+
+* error during fiction import ([9706a13](https://github.com/Faustvii/zlib-torznab/commit/9706a13f78a71c2926d5ee6bf9a7bd4d05ee7ba4))
+* index usage for indexing queries ([767c905](https://github.com/Faustvii/zlib-torznab/commit/767c905cf14091113f6734c0eb4eaecf935806c2))
+
 ## [3.0.9](https://github.com/Faustvii/zlib-torznab/compare/v3.0.8...v3.0.9) (2022-12-24)
 
 
