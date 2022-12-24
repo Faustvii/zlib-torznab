@@ -1,3 +1,10 @@
+## [3.0.9](https://github.com/Faustvii/zlib-torznab/compare/v3.0.8...v3.0.9) (2022-12-24)
+
+
+### Bug Fixes
+
+* missed another index ([7e5b755](https://github.com/Faustvii/zlib-torznab/commit/7e5b755a22f9b49de065c11c6bd2d99b65e132c2))
+
 ## [3.0.8](https://github.com/Faustvii/zlib-torznab/compare/v3.0.7...v3.0.8) (2022-12-24)
 
 
