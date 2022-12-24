@@ -70,7 +70,7 @@ public class HostedTrackerService : IHostedService
                 if (torrentManager.State != TorrentState.Stopped)
                     await torrentManager.StopAsync();
                 _semaphore.Release();
-                await engine.RemoveAsync(torrentManager);
+                await engine.RemoveAsync(torrentManager, RemoveMode.CacheDataAndDownloadedData);
             }
         }
     }
