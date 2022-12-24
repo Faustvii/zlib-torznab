@@ -237,6 +237,7 @@ public partial class MetadataService : IMetadataService
             "  KEY `VisibleTimeLastModified` (`Visible`,`TimeLastModified`,`ID`) USING BTREE,",
             "  KEY `DOI_INDEX` (`Doi`) USING BTREE,",
             "  KEY `Identifier` (`Identifier`),",
+            "  KEY `TimeLastModifiedID` (`TimeLastModified`,`ID`) USING BTREE,",
             "  FULLTEXT KEY",
         };
 
