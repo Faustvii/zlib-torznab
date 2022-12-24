@@ -1,3 +1,10 @@
+## [3.0.12](https://github.com/Faustvii/zlib-torznab/compare/v3.0.11...v3.0.12) (2022-12-24)
+
+
+### Bug Fixes
+
+* remove temp downloaded files once seeding is done ([e6d7b82](https://github.com/Faustvii/zlib-torznab/commit/e6d7b82f74b9984afe273d8c43a4ba25fada2b7f))
+
 ## [3.0.11](https://github.com/Faustvii/zlib-torznab/compare/v3.0.10...v3.0.11) (2022-12-24)
 
 
