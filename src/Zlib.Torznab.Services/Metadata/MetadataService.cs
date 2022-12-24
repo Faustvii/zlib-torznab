@@ -211,14 +211,13 @@ public partial class MetadataService : IMetadataService
 
     private void CleanFiction(string inputFile, string outputFile)
     {
+        var lineStartsToDiscard = new[] { "INSERT INTO `fiction_description`", "FULLTEXT KEY", };
+
         StripUselessFromFile(
             inputFile,
             outputFile,
-            (x) =>
-                x.StartsWith(
-                    "INSERT INTO `fiction_description`",
-                    StringComparison.OrdinalIgnoreCase
-                )
+            (line) =>
+                lineStartsToDiscard.Any(x => line.StartsWith(x, StringComparison.OrdinalIgnoreCase))
         );
     }
 
@@ -230,13 +229,35 @@ public partial class MetadataService : IMetadataService
             "INSERT INTO `description_edited`",
             "INSERT INTO `topics`",
             "INSERT INTO `updated_edited`",
+            "  KEY `Generic` (`Generic`) USING BTREE",
+            "  KEY `VisibleTimeAdded` (`Visible`,`TimeAdded`) USING BTREE,",
+            "  KEY `TimeAdded` (`TimeAdded`) USING BTREE,",
+            "  KEY `Topic` (`Topic`(3)) USING BTREE,",
+            "  KEY `VisibleID` (`Visible`,`ID`) USING BTREE,",
+            "  KEY `VisibleTimeLastModified` (`Visible`,`TimeLastModified`,`ID`) USING BTREE,",
+            "  KEY `DOI_INDEX` (`Doi`) USING BTREE,",
+            "  KEY `Identifier` (`Identifier`),",
+            "  FULLTEXT KEY",
+        };
+
+        var replaceLines = new[,]
+        {
+            { "  KEY `Extension` (`Extension`),", "  KEY `Extension` (`Extension`)" },
         };
 
         StripUselessFromFile(
             inputFile,
             outputFile,
             (line) =>
-                lineStartsToDiscard.Any(x => line.StartsWith(x, StringComparison.OrdinalIgnoreCase))
+                lineStartsToDiscard.Any(
+                    x => line.StartsWith(x, StringComparison.OrdinalIgnoreCase)
+                ),
+            (line) =>
+                line.Replace(
+                    "  KEY `Extension` (`Extension`),",
+                    "  KEY `Extension` (`Extension`)",
+                    StringComparison.OrdinalIgnoreCase
+                )
         );
 
         File.Move(outputFile, inputFile, overwrite: true);
@@ -303,19 +324,31 @@ public partial class MetadataService : IMetadataService
         if (process is null)
             return;
 
+        var hasErrored = false;
+
         process.OutputDataReceived += (o, e) => Console.Out.WriteLine(e.Data);
-        process.ErrorDataReceived += (o, e) => Console.Error.WriteLine(e.Data);
+        process.ErrorDataReceived += (o, e) =>
+        {
+            if (string.IsNullOrWhiteSpace(e.Data))
+                return;
+            hasErrored = true;
+            Console.Error.WriteLine(e.Data);
+        };
         process.BeginErrorReadLine();
         process.BeginOutputReadLine();
         process.StandardInput.Close();
         await process.WaitForExitAsync(cancellationToken);
+        if (process.ExitCode != 0 || hasErrored)
+            throw new Exception($"Error during sql import {process.ExitCode}");
+
         _logger.LogInformation("Finished import of {file}", inputFile);
     }
 
     private void StripUselessFromFile(
         string inputFile,
         string outputFile,
-        Func<string, bool> removeLinesMatching
+        Func<string, bool> removeLinesMatching,
+        Func<string, string>? replaceLine = null
     )
     {
         _logger.LogInformation("Starting to clean {file}", inputFile);
@@ -327,6 +360,8 @@ public partial class MetadataService : IMetadataService
         {
             if (removeLinesMatching(line))
                 continue;
+            if (replaceLine != null)
+                line = replaceLine(line);
             writer.WriteLine(line);
         }
         _logger.LogInformation("Finished cleaning of {file}", inputFile);
