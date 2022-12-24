@@ -17,16 +17,23 @@ public sealed class HostedIndexUpdater : IHostedService, IDisposable
 
     private async void ExecuteAsync(object? state)
     {
-        if (state is CancellationToken ct)
+        try
         {
-            await using var scope = Services.CreateAsyncScope();
-            var elasticService = scope.ServiceProvider.GetRequiredService<IElasticService>();
-            await elasticService.IndexLatestLibgen(ct);
-            await elasticService.IndexLatestLibgenFiction(ct);
+            if (state is CancellationToken ct)
+            {
+                await using var scope = Services.CreateAsyncScope();
+                var elasticService = scope.ServiceProvider.GetRequiredService<IElasticService>();
+                await elasticService.IndexLatestLibgen(ct);
+                await elasticService.IndexLatestLibgenFiction(ct);
+            }
+            else
+            {
+                _logger.LogError("Object state was not a cancellation token");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _logger.LogError("Object state was not a cancellation token");
+            _logger.LogError(ex, "Error during {Service} execution", nameof(HostedIndexUpdater));
         }
     }
 

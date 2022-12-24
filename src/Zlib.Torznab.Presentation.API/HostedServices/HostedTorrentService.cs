@@ -12,23 +12,35 @@ public class HostedTorrentService : IHostedService
 {
     private readonly ITorrentService _torrentService;
     private readonly IBackgroundJobPool _jobPool;
+    private readonly ILogger<HostedTorrentService> _logger;
     private readonly DomainTorrentSettings _torrentSettings;
 
     public HostedTorrentService(
         ITorrentService torrentService,
         IBackgroundJobPool jobPool,
-        IOptions<DomainTorrentSettings> options
+        IOptions<DomainTorrentSettings> options,
+        ILogger<HostedTorrentService> logger
     )
     {
         _torrentService = torrentService;
         _jobPool = jobPool;
+        _logger = logger;
         _torrentSettings = options.Value;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _jobPool.QueueBackgroundWorkItemAsync((ct) => BindMonoTorrentToSpecificInterface());
-        await _torrentService.GetEngine().StartAllAsync();
+        try
+        {
+            await _jobPool.QueueBackgroundWorkItemAsync(
+                (ct) => BindMonoTorrentToSpecificInterface()
+            );
+            await _torrentService.GetEngine().StartAllAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during {Service} execution", nameof(HostedTorrentService));
+        }
     }
 
     private async ValueTask BindMonoTorrentToSpecificInterface()

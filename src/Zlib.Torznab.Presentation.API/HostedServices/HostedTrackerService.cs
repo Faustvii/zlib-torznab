@@ -10,24 +10,36 @@ public class HostedTrackerService : IHostedService
     private TrackerServer _tracker = new();
     private readonly APITrackerListener _trackerListener;
     private readonly ITorrentService _torrentService;
+    private readonly ILogger<HostedTrackerService> _logger;
     private readonly SemaphoreSlim _semaphore = new(1);
 
-    public HostedTrackerService(APITrackerListener trackerListener, ITorrentService torrentService)
+    public HostedTrackerService(
+        APITrackerListener trackerListener,
+        ITorrentService torrentService,
+        ILogger<HostedTrackerService> logger
+    )
     {
         _trackerListener = trackerListener;
         _torrentService = torrentService;
+        _logger = logger;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_tracker.Disposed)
+        try
         {
-            _tracker = new();
+            if (_tracker.Disposed)
+            {
+                _tracker = new();
+            }
+            _tracker.AllowUnregisteredTorrents = true;
+            _tracker.RegisterListener(_trackerListener);
+            _tracker.PeerAnnounced += async (o, e) => await StopSeedingWhenDownloaded(o, e);
         }
-        _tracker.AllowUnregisteredTorrents = true;
-        _tracker.RegisterListener(_trackerListener);
-        _tracker.PeerAnnounced += async (o, e) => await StopSeedingWhenDownloaded(o, e);
-
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during {Service} execution", nameof(HostedTrackerService));
+        }
         return Task.CompletedTask;
     }
 
