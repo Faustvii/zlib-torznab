@@ -211,7 +211,7 @@ public partial class MetadataService : IMetadataService
 
     private void CleanFiction(string inputFile, string outputFile)
     {
-        var lineStartsToDiscard = new[] { "INSERT INTO `fiction_description`", "FULLTEXT KEY", };
+        var lineStartsToDiscard = new[] { "INSERT INTO `fiction_description`", "  FULLTEXT KEY", };
 
         StripUselessFromFile(
             inputFile,
