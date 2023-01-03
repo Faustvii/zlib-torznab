@@ -1,3 +1,10 @@
+## [3.0.13](https://github.com/Faustvii/zlib-torznab/compare/v3.0.12...v3.0.13) (2023-01-03)
+
+
+### Bug Fixes
+
+* cleaning issue of libgen fiction ([9b3ae2d](https://github.com/Faustvii/zlib-torznab/commit/9b3ae2daf35b385ce554b43f50d56369e3b6549d))
+
 ## [3.0.12](https://github.com/Faustvii/zlib-torznab/compare/v3.0.11...v3.0.12) (2022-12-24)
 
 
