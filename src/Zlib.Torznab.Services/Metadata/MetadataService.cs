@@ -13,14 +13,14 @@ namespace Zlib.Torznab.Services.Metadata;
 public partial class MetadataService : IMetadataService
 {
     [GeneratedRegex(
-        @".*href=\""(?<fileName>fiction\.rar).*?right.+?(?<date>\d{4}-\d{2}-\d{2})",
+        @".*href=""(?<fileName>fiction\.rar).*?right.+?(?<date>\d{4}-\d{2}-\d{2}).+?""right"">(?<size>.+?)</td>",
         RegexOptions.IgnoreCase,
         matchTimeoutMilliseconds: 1000
     )]
     private static partial Regex NewestFictionDumpDateParser();
 
     [GeneratedRegex(
-        @".*href=\""(?<fileName>libgen\.rar).*?right.+?(?<date>\d{4}-\d{2}-\d{2})",
+        @".*href=""(?<fileName>libgen\.rar).*?right.+?(?<date>\d{4}-\d{2}-\d{2}).+?""right"">(?<size>.+?)</td>",
         RegexOptions.IgnoreCase,
         matchTimeoutMilliseconds: 1000
     )]
@@ -158,8 +158,18 @@ public partial class MetadataService : IMetadataService
         var dumpFile = Path.Combine(_metadataSettings.WorkingDirectory, libgenDump.FileName);
         if (File.Exists(dumpFile))
         {
-            var lastDump = File.GetLastWriteTimeUtc(dumpFile);
-            if (DateOnly.FromDateTime(lastDump) == libgenDump.DumpDate)
+            var fileInfo = new FileInfo(dumpFile);
+            var lastDump = fileInfo.LastWriteTimeUtc;
+            var fileSize = fileInfo.Length;
+            var percentage = (double)fileSize / libgenDump.EstimatedSizeInBytes * 100D;
+            var existingFileSizeSeemsCorrect = false;
+            if (percentage > 95D) // Since nginx doesn't give a very accurate byte size back all we can do it try to match
+                existingFileSizeSeemsCorrect = true;
+
+            if (
+                DateOnly.FromDateTime(lastDump) == libgenDump.DumpDate
+                && existingFileSizeSeemsCorrect
+            )
             {
                 _logger.LogInformation(
                     "We already have a dbdump of {dbdump} from this date downloaded",
@@ -201,13 +211,65 @@ public partial class MetadataService : IMetadataService
             out var newestLibgenDumpDate
         );
 
+        var fictionSize = ParseSize(fictionMatch[0].Groups["size"].Value) ?? 0L;
+        var libgenSize = ParseSize(libgenMatch[0].Groups["size"].Value) ?? 0L;
+
         return (
-            new(fictionMatch[0].Groups["fileName"].Value, newestFictionDumpDate),
-            new(libgenMatch[0].Groups["fileName"].Value, newestLibgenDumpDate)
+            new(fictionMatch[0].Groups["fileName"].Value, newestFictionDumpDate, fictionSize),
+            new(libgenMatch[0].Groups["fileName"].Value, newestLibgenDumpDate, libgenSize)
         );
     }
 
-    private record LibgenDump(string FileName, DateOnly DumpDate);
+    private long? ParseSize(string sizeString)
+    {
+        var trimmedInput = sizeString.Trim();
+        var numberFormatInfo = NumberFormatInfo.GetInstance(CultureInfo.InvariantCulture);
+        var decimalSeparator = Convert.ToChar(
+            numberFormatInfo.NumberDecimalSeparator,
+            CultureInfo.InvariantCulture
+        );
+        var groupSeparator = Convert.ToChar(
+            numberFormatInfo.NumberGroupSeparator,
+            CultureInfo.InvariantCulture
+        );
+        var foundSizeIndicator = false;
+        var lastNumber = 0;
+
+        for (var num = 0; num < trimmedInput.Length; num++)
+            if (
+                !(
+                    char.IsDigit(trimmedInput[num])
+                    || trimmedInput[num] == decimalSeparator
+                    || trimmedInput[num] == groupSeparator
+                )
+            )
+            {
+                foundSizeIndicator = true;
+                lastNumber = num;
+                break;
+            }
+
+        if (!foundSizeIndicator)
+            return null;
+
+        var numberPart = trimmedInput[..lastNumber].Trim();
+        var sizePart = trimmedInput[lastNumber..].Trim();
+
+        if (!double.TryParse(numberPart, CultureInfo.InvariantCulture, out var size))
+            return null;
+
+        var power = sizePart.ToLowerInvariant() switch
+        {
+            "kb" => 1,
+            "mb" => 2,
+            "g" => 3,
+            _ => 1
+        };
+
+        return (long)(size * Math.Pow(1024, power));
+    }
+
+    private record LibgenDump(string FileName, DateOnly DumpDate, long EstimatedSizeInBytes);
 
     private void CleanFiction(string inputFile, string outputFile)
     {
