@@ -1,3 +1,10 @@
+## [3.0.14](https://github.com/Faustvii/zlib-torznab/compare/v3.0.13...v3.0.14) (2023-01-09)
+
+
+### Bug Fixes
+
+* do some basic size check in case of partial db dump downloads ([68295e7](https://github.com/Faustvii/zlib-torznab/commit/68295e7bc09443eb9afeae1255fffd5b49dbab29))
+
 ## [3.0.13](https://github.com/Faustvii/zlib-torznab/compare/v3.0.12...v3.0.13) (2023-01-03)
 
 
