@@ -1,3 +1,10 @@
+## [3.0.15](https://github.com/Faustvii/zlib-torznab/compare/v3.0.14...v3.0.15) (2023-01-11)
+
+
+### Bug Fixes
+
+* fixed indexing missing entries ([a1382a5](https://github.com/Faustvii/zlib-torznab/commit/a1382a53f7eec1590b7b8411929e3162e27f3c9f))
+
 ## [3.0.14](https://github.com/Faustvii/zlib-torznab/compare/v3.0.13...v3.0.14) (2023-01-09)
 
 
