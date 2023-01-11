@@ -26,6 +26,8 @@ public class MetadataRepository : IMetadataRepository
                 LatestUpdate = (DateTime)SqlDateTime.MinValue,
                 LastestLibgenEntry = (DateTime)SqlDateTime.MinValue,
                 LastestLibgenFictionEntry = (DateTime)SqlDateTime.MinValue,
+                LatestLibgenEntryId = 1,
+                LatestLibgenFictionEntryId = 1,
             };
             _context.Add(metaData);
             await _context.SaveChangesAsync();
@@ -38,6 +40,8 @@ public class MetadataRepository : IMetadataRepository
             LatestUpdate = metaData.LatestUpdate,
             LastestLibgenEntry = metaData.LastestLibgenEntry,
             LastestLibgenFictionEntry = metaData.LastestLibgenFictionEntry,
+            LatestLibgenFictionEntryId = metaData.LatestLibgenFictionEntryId,
+            LatestLibgenEntryId = metaData.LatestLibgenEntryId,
         };
     }
 
@@ -51,6 +55,8 @@ public class MetadataRepository : IMetadataRepository
         entity.LatestUpdate = metadata.LatestUpdate;
         entity.LastestLibgenEntry = metadata.LastestLibgenEntry;
         entity.LastestLibgenFictionEntry = metadata.LastestLibgenFictionEntry;
+        entity.LatestLibgenEntryId = metadata.LatestLibgenEntryId;
+        entity.LatestLibgenFictionEntryId = metadata.LatestLibgenFictionEntryId;
         _context.Update(entity);
         await _context.SaveChangesAsync();
     }

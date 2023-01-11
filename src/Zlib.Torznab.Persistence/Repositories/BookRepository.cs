@@ -25,16 +25,28 @@ public class BookRepository : IBookRepository
         return book;
     }
 
-    public async Task<IReadOnlyList<Book>> GetLibgenFictionForIndex(
-        int limit,
-        DateTime newerThan,
-        int skip
-    )
+    public async Task<IReadOnlyList<Book>> GetAllLibgenFictionForIndex(int limit, uint largerThanId)
     {
         _context.Database.SetCommandTimeout(60);
         return await GetFictionQuery()
-            .Where(x => x.TimeModified >= newerThan)
-            .Concat(GetFictionQuery().Where(x => x.TimeAdded >= newerThan))
+            .Where(
+                x =>
+                    x.Id > largerThanId
+                    && x.IpfsCid != ""
+#pragma warning disable MA0002 // Does not work with LINQ to entities
+                    && AllowedExtensions.Contains(x.Extension)
+#pragma warning restore MA0002
+                    && (x.Language == "" || x.Language == "English" || x.Language == "other")
+            )
+            .OrderBy(x => x.Id)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<Book>> GetLatestLibgenFictionForIndex(int limit, int skip)
+    {
+        _context.Database.SetCommandTimeout(60);
+        return await GetFictionQuery()
             .Where(
                 x =>
                     x.IpfsCid != ""
@@ -43,22 +55,34 @@ public class BookRepository : IBookRepository
 #pragma warning restore MA0002
                     && (x.Language == "" || x.Language == "English" || x.Language == "other")
             )
-            .OrderBy(x => x.TimeAdded)
+            .OrderByDescending(x => x.TimeModified)
             .Skip(skip)
             .Take(limit)
             .ToListAsync();
     }
 
-    public async Task<IReadOnlyList<Book>> GetLibgenForIndex(
-        int limit,
-        DateTime newerThan,
-        int skip
-    )
+    public async Task<IReadOnlyList<Book>> GetAllLibgenForIndex(int limit, uint largerThanId)
     {
         _context.Database.SetCommandTimeout(60);
         return await GetLibgenQuery()
-            .Where(x => x.TimeModified >= newerThan)
-            .Concat(GetLibgenQuery().Where(x => x.TimeAdded >= newerThan))
+            .Where(
+                x =>
+                    x.Id > largerThanId
+                    && x.IpfsCid != ""
+#pragma warning disable MA0002 // Does not work with LINQ to entities
+                    && AllowedExtensions.Contains(x.Extension)
+#pragma warning restore MA0002
+                    && (x.Language == "" || x.Language == "English" || x.Language == "other")
+            )
+            .OrderBy(x => x.Id)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<Book>> GetLatestLibgenForIndex(int limit, int skip)
+    {
+        _context.Database.SetCommandTimeout(60);
+        return await GetLibgenQuery()
             .Where(
                 x =>
                     x.IpfsCid != ""
@@ -67,7 +91,7 @@ public class BookRepository : IBookRepository
 #pragma warning restore MA0002
                     && (x.Language == "" || x.Language == "English" || x.Language == "other")
             )
-            .OrderBy(x => x.TimeAdded)
+            .OrderByDescending(x => x.TimeModified)
             .Skip(skip)
             .Take(limit)
             .ToListAsync();

@@ -8,4 +8,6 @@ public class Metadata
     public DateTime LastFictionImport { get; set; }
     public DateTime LastestLibgenEntry { get; set; }
     public DateTime LastestLibgenFictionEntry { get; set; }
+    public uint LatestLibgenFictionEntryId { get; set; }
+    public uint LatestLibgenEntryId { get; set; }
 }
