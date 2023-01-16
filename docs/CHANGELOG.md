@@ -1,3 +1,10 @@
+## [3.0.16](https://github.com/Faustvii/zlib-torznab/compare/v3.0.15...v3.0.16) (2023-01-16)
+
+
+### Bug Fixes
+
+* single character words would not match elastic query ([616c637](https://github.com/Faustvii/zlib-torznab/commit/616c6377380fd67f31c94050fbf3566ffa1c532f))
+
 ## [3.0.15](https://github.com/Faustvii/zlib-torznab/compare/v3.0.14...v3.0.15) (2023-01-11)
 
 
