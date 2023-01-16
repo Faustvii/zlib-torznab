@@ -1,3 +1,4 @@
+using System.Reflection.PortableExecutable;
 using Microsoft.Extensions.Logging;
 using Nest;
 using Zlib.Torznab.Models.Archive;
@@ -32,11 +33,20 @@ public class ElasticService : IElasticService
             s =>
                 s.Query(
                         q =>
-                            q.Match(
-                                m =>
-                                    m.Field(f => f.Author)
-                                        .Query(request.Author)
-                                        .Operator(Operator.And)
+                            (
+                                q.Match(
+                                    m =>
+                                        m.Field(f => f.Author)
+                                            .Query(request.Author)
+                                            .Operator(Operator.And)
+                                            .Boost(1000d)
+                                )
+                                || q.Match(
+                                    m =>
+                                        m.Field(f => f.Author)
+                                            .Query(request.CleanAuthor)
+                                            .Operator(Operator.And)
+                                )
                             )
                             && (
                                 q.Match(
@@ -88,6 +98,7 @@ public class ElasticService : IElasticService
             TimeAdded = x.LatestChange,
             Title = x.Title,
             Year = x.Year,
+            Source = x.Source,
         };
     }
 
@@ -132,37 +143,19 @@ public class ElasticService : IElasticService
 
     public async Task IndexLatestLibgen(CancellationToken cancellationToken)
     {
-        var take = 10000;
         var metadata = await _metadataRepository.GetMetadata();
         var latestId = metadata.LatestLibgenEntryId;
-        var skip = 0;
-        var bookCounter = 0;
 
-        var books = await _bookRepository.GetLatestLibgenForIndex(take, skip);
-        var latestBook = books.MaxBy(x => x.LatestChange);
-        if (latestBook?.Id == metadata.LatestLibgenEntryId)
-        {
-            _logger.LogInformation("{BookSource} is up to date", "Libgen");
-            return;
-        }
-        await MapAndIndex(books, "Libgen", cancellationToken);
-
-        while (!books.Any(x => x.Id == metadata.LatestLibgenEntryId))
-        {
-            skip += books.Count;
-            bookCounter += books.Count;
-            books = await _bookRepository.GetLatestLibgenForIndex(take, skip);
-            await MapAndIndex(books, "Libgen", cancellationToken);
-        }
-
-        metadata.LatestLibgenEntryId = latestBook?.Id ?? metadata.LatestLibgenEntryId;
-        await _metadataRepository.UpdateMetadata(metadata);
-
-        _logger.LogInformation(
-            "Updated {BooksCounter} books for {BookSource}",
-            bookCounter,
-            "Libgen"
+        latestId = await IndexLatest(
+            latestId,
+            "Libgen",
+            (books) => !books.Any(x => x.Id == latestId),
+            _bookRepository.GetLatestLibgenFictionForIndex,
+            cancellationToken
         );
+
+        metadata.LatestLibgenEntryId = latestId;
+        await _metadataRepository.UpdateMetadata(metadata);
     }
 
     public async Task IndexAllLibgenFiction(CancellationToken cancellationToken)
@@ -193,37 +186,58 @@ public class ElasticService : IElasticService
 
     public async Task IndexLatestLibgenFiction(CancellationToken cancellationToken)
     {
-        var take = 10000;
         var metadata = await _metadataRepository.GetMetadata();
         var latestId = metadata.LatestLibgenFictionEntryId;
+
+        latestId = await IndexLatest(
+            latestId,
+            "LibgenFiction",
+            (books) => !books.Any(x => x.Id == latestId),
+            _bookRepository.GetLatestLibgenFictionForIndex,
+            cancellationToken
+        );
+
+        metadata.LatestLibgenFictionEntryId = latestId;
+        await _metadataRepository.UpdateMetadata(metadata);
+    }
+
+    private async Task<uint> IndexLatest(
+        uint latestId,
+        string source,
+        Func<IEnumerable<Book>, bool> whilePredicate,
+        Func<int, int, Task<IReadOnlyList<Book>>> bookQuery,
+        CancellationToken cancellationToken
+    )
+    {
+        var take = 100;
         var skip = 0;
-        var bookCounter = 0;
+        var books = await bookQuery(take, skip);
+        var bookCounter = books.Count;
 
-        var books = await _bookRepository.GetLatestLibgenFictionForIndex(take, skip);
         var latestBook = books.MaxBy(x => x.LatestChange);
-        if (latestBook?.Id == metadata.LatestLibgenFictionEntryId)
+        if (latestBook?.Id == latestId)
         {
-            _logger.LogInformation("{BookSource} is up to date", "LibgenFiction");
-            return;
+            _logger.LogInformation("{BookSource} is up to date", source);
+            return latestId;
         }
-        await MapAndIndex(books, "LibgenFiction", cancellationToken);
 
-        while (!books.Any(x => x.Id == metadata.LatestLibgenFictionEntryId))
+        await MapAndIndex(books, source, cancellationToken);
+
+        while (whilePredicate(books))
         {
             skip += books.Count;
             bookCounter += books.Count;
-            books = await _bookRepository.GetLatestLibgenFictionForIndex(take, skip);
-            await MapAndIndex(books, "LibgenFiction", cancellationToken);
+            books = await bookQuery(take, skip);
+            await MapAndIndex(books, source, cancellationToken);
         }
-
-        metadata.LatestLibgenFictionEntryId = latestBook?.Id ?? metadata.LatestLibgenFictionEntryId;
-        await _metadataRepository.UpdateMetadata(metadata);
 
         _logger.LogInformation(
             "Updated {BooksCounter} books for {BookSource}",
             bookCounter,
-            "LibgenFiction"
+            source
         );
+
+        return latestBook?.Id ?? latestId;
     }
 
     private async Task MapAndIndex(

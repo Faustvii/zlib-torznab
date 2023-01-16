@@ -108,7 +108,11 @@ public class TorznabService : ITorznabService
             Title = x.FormattedTitle,
             TorznabGuid = new TorznabGuid { IsPermaLink = false, Text = x.IpfsCid, },
             PubDate = x.TimeAdded.ToString("r", CultureInfo.InvariantCulture),
-            Source = new Source { Url = $"{_applicationSettings.Torznab.SourceUrlBase}{x.Md5}" },
+            Source = new Source
+            {
+                Url = $"{_applicationSettings.Torznab.SourceUrlBase}{x.Md5}",
+                Text = x.Source,
+            },
             Attr = new List<Attr>
             {
                 new Attr { Name = "files", Value = "1" },

@@ -5,6 +5,7 @@ public record ElasticBook
     public string Id { get; init; } = string.Empty;
     public string Md5 { get; init; } = string.Empty;
     public string Author { get; init; } = string.Empty;
+    public string CleanAuthor { get; init; } = string.Empty;
     public string Title { get; init; } = string.Empty;
     public string Year { get; init; } = string.Empty;
     public string Extension { get; init; } = string.Empty;

@@ -17,6 +17,7 @@ public record Book
     public string Publisher { get; init; } = string.Empty;
     public string Locator { get; init; } = string.Empty;
     public string Identifier { get; init; } = string.Empty;
+    public string Source { get; init; } = string.Empty;
 
     public DateTime LatestChange => TimeModified ?? TimeAdded;
     public string FormattedTitle =>
