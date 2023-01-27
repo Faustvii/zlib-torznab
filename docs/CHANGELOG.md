@@ -1,3 +1,10 @@
+## [3.0.17](https://github.com/Faustvii/zlib-torznab/compare/v3.0.16...v3.0.17) (2023-01-27)
+
+
+### Bug Fixes
+
+* running multiple indexers at the same time if first one doesn't finish before next schedule ([e2de92b](https://github.com/Faustvii/zlib-torznab/commit/e2de92b8b4b3e23ef3b217e59fb12bf3a8c7cda3))
+
 ## [3.0.16](https://github.com/Faustvii/zlib-torznab/compare/v3.0.15...v3.0.16) (2023-01-16)
 
 
