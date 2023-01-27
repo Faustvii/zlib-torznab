@@ -1,3 +1,10 @@
+## [3.0.18](https://github.com/Faustvii/zlib-torznab/compare/v3.0.17...v3.0.18) (2023-01-27)
+
+
+### Bug Fixes
+
+* fixed libgen indexer querying fiction section ([f72f1bd](https://github.com/Faustvii/zlib-torznab/commit/f72f1bd170cb2e000b67424f23ada140b49aea12))
+
 ## [3.0.17](https://github.com/Faustvii/zlib-torznab/compare/v3.0.16...v3.0.17) (2023-01-27)
 
 
