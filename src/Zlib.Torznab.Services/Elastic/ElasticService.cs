@@ -1,4 +1,3 @@
-using System.Reflection.PortableExecutable;
 using Microsoft.Extensions.Logging;
 using Nest;
 using Zlib.Torznab.Models.Archive;
@@ -150,7 +149,7 @@ public class ElasticService : IElasticService
             latestId,
             "Libgen",
             (books) => !books.Any(x => x.Id == latestId),
-            _bookRepository.GetLatestLibgenFictionForIndex,
+            _bookRepository.GetLatestLibgenForIndex,
             cancellationToken
         );
 
