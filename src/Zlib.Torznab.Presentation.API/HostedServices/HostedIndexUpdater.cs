@@ -6,6 +6,7 @@ public sealed class HostedIndexUpdater : IHostedService, IDisposable
 {
     private readonly ILogger<HostedIndexUpdater> _logger;
     private Timer? _timer = null;
+    private readonly SemaphoreSlim _semaphore = new(1);
 
     public IServiceProvider Services { get; }
 
@@ -21,6 +22,7 @@ public sealed class HostedIndexUpdater : IHostedService, IDisposable
         {
             if (state is CancellationToken ct)
             {
+                await _semaphore.WaitAsync();
                 await using var scope = Services.CreateAsyncScope();
                 var elasticService = scope.ServiceProvider.GetRequiredService<IElasticService>();
                 await elasticService.IndexLatestLibgen(ct);
@@ -34,6 +36,10 @@ public sealed class HostedIndexUpdater : IHostedService, IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during {Service} execution", nameof(HostedIndexUpdater));
+        }
+        finally
+        {
+            _semaphore.Release();
         }
     }
 

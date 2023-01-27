@@ -209,7 +209,7 @@ public class ElasticService : IElasticService
         CancellationToken cancellationToken
     )
     {
-        var take = 100;
+        var take = 500;
         var skip = 0;
         var books = await bookQuery(take, skip);
         var bookCounter = books.Count;
