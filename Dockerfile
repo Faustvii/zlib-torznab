@@ -23,7 +23,7 @@ COPY ./src/ ./src
 RUN dotnet publish ./src/Zlib.Torznab.Presentation.API/ -c Release -o out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0.2-alpine3.16-amd64
+FROM mcr.microsoft.com/dotnet/aspnet:7.0.3-alpine3.16-amd64
 RUN apk add mysql-client=10.6.10-r0 --no-cache && rm -rf /var/cache/apk/*
 WORKDIR /app
 COPY --from=build-env /app/out .
