@@ -16,7 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
     <PackageReference Include="monotorrent" Version="3.0.0-beta.rev0106" />
     <PackageReference Include="NEST" Version="7.17.5" />
-    <PackageReference Include="SharpCompress" Version="0.32.2" />
+    <PackageReference Include="SharpCompress" Version="0.33.0" />
   </ItemGroup>
 
   <PropertyGroup>
