@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     name: .NET build and test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Fetch next version number
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: semantic release
         id: semantic
@@ -64,7 +64,7 @@ jobs:
     if: needs.get_next_version.outputs.create_release == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
